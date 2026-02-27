@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Cache bust v2 - Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt && pip install beautifulsoup4
 
 # Copy application code
 COPY . .
