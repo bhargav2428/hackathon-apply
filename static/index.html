@@ -1789,13 +1789,15 @@
             container.innerHTML = hackathons.map(h => {
                 const existingApp = getApplicationForHackathon(h.id);
                 const isApplied = existingApp && existingApp.status === 'submitted';
+                const isConfirmed = existingApp && existingApp.external_submitted === true;
                 const isPending = existingApp && (existingApp.status === 'pending' || existingApp.status === 'auto_generated');
                 
                 return `
                 <div class="hackathon-card ${isApplied ? 'applied' : ''}">
                     <div class="hackathon-banner">
                         <span class="hackathon-badge">${h.is_active ? '🟢 Active' : '🔴 Closed'}</span>
-                        ${isApplied ? '<span class="hackathon-badge" style="background: var(--success);">✅ Applied</span>' : ''}
+                        ${isConfirmed ? '<span class="hackathon-badge" style="background: var(--success);">✅ Confirmed</span>' : ''}
+                        ${isApplied && !isConfirmed ? '<span class="hackathon-badge" style="background: #6366f1;">📝 Tracked</span>' : ''}
                         ${isPending ? '<span class="hackathon-badge" style="background: var(--warning);">⏳ Draft</span>' : ''}
                     </div>
                     <div class="hackathon-content">
@@ -1813,9 +1815,9 @@
                         </div>
                         <div class="hackathon-actions">
                             ${h.url ? `<button class="btn btn-secondary" onclick="window.open('${h.url}', '_blank')"><i class="fas fa-external-link-alt"></i> View</button>` : ''}
-                            <button class="btn ${isApplied ? 'btn-success' : 'btn-primary'}" onclick="applyToHackathon('${h.id}')">
-                                <i class="fas ${isApplied ? 'fa-check-circle' : isPending ? 'fa-edit' : 'fa-paper-plane'}"></i> 
-                                ${isApplied ? 'View Application' : isPending ? 'Continue Application' : 'Apply'}
+                            <button class="btn ${isConfirmed ? 'btn-success' : isApplied ? 'btn-primary' : 'btn-primary'}" onclick="applyToHackathon('${h.id}')">
+                                <i class="fas ${isConfirmed ? 'fa-check-circle' : isApplied ? 'fa-edit' : isPending ? 'fa-edit' : 'fa-paper-plane'}"></i> 
+                                ${isConfirmed ? 'View Application' : isApplied ? 'Confirm Submission' : isPending ? 'Continue Application' : 'Apply'}
                             </button>
                         </div>
                     </div>
@@ -1884,13 +1886,34 @@
                 }
                 
                 const statusBadge = getStatusBadge(existingApp.status);
+                const isExternalConfirmed = existingApp.external_submitted === true;
+                
                 document.getElementById('modalProjectIdea').innerHTML = `
                     <div style="margin-bottom: 16px;">
                         <span style="font-weight: 600;">Application Status:</span> ${statusBadge}
                         ${existingApp.is_auto_applied ? '<span class="badge badge-info" style="margin-left: 8px;"><i class="fas fa-robot"></i> Auto-applied</span>' : ''}
+                        ${isExternalConfirmed ? '<span class="badge badge-success" style="margin-left: 8px;"><i class="fas fa-check-double"></i> Externally Confirmed</span>' : ''}
                     </div>
-                    ${existingApp.submitted_at ? `<p style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-paper-plane"></i> Submitted: ${new Date(existingApp.submitted_at).toLocaleString()}</p>` : ''}
+                    ${existingApp.submitted_at ? `<p style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-paper-plane"></i> Tracked: ${new Date(existingApp.submitted_at).toLocaleString()}</p>` : ''}
+                    ${existingApp.external_submitted_at ? `<p style="color: var(--success); font-size: 13px;"><i class="fas fa-check-double"></i> Confirmed on website: ${new Date(existingApp.external_submitted_at).toLocaleString()}</p>` : ''}
+                    ${existingApp.external_confirmation ? `<p style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-hashtag"></i> Confirmation: ${existingApp.external_confirmation}</p>` : ''}
                     ${ideaHTML ? `<div class="ai-preview">${ideaHTML}</div>` : '<p style="color: var(--text-muted);">No AI content generated yet.</p>'}
+                    
+                    ${existingApp.status === 'submitted' && !isExternalConfirmed ? `
+                        <div style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.3);">
+                            <h4 style="margin: 0 0 8px 0; color: var(--primary-color);"><i class="fas fa-question-circle"></i> Did you apply on the hackathon website?</h4>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                                This application is tracked in our system. Once you've submitted on the actual hackathon website, confirm it below:
+                            </p>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                                <input type="text" id="confirmationInput" placeholder="Confirmation # (optional)" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--text); flex: 1; min-width: 150px;">
+                                <button class="btn btn-success" onclick="confirmExternalSubmission('${existingApp.id}')">
+                                    <i class="fas fa-check-double"></i> Yes, I Applied!
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
                     ${existingApp.status !== 'submitted' ? `
                         <div style="margin-top: 16px; display: flex; gap: 8px;">
                             <button class="btn btn-secondary" onclick="generatePreview()">
@@ -1903,11 +1926,18 @@
                 // Update submit button based on status
                 const submitBtn = document.getElementById('confirmApplyBtn');
                 if (existingApp.status === 'submitted') {
-                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Already Submitted';
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('btn-success');
-                    submitBtn.classList.remove('btn-primary');
-                    submitBtn.onclick = null;
+                    if (isExternalConfirmed) {
+                        submitBtn.innerHTML = '<i class="fas fa-check-double"></i> Confirmed!';
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('btn-success');
+                        submitBtn.classList.remove('btn-primary');
+                    } else {
+                        submitBtn.innerHTML = '<i class="fas fa-external-link-alt"></i> Go to Hackathon Website';
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('btn-success');
+                        submitBtn.classList.add('btn-primary');
+                        submitBtn.onclick = () => window.open(selectedHackathon.url, '_blank');
+                    }
                 } else {
                     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
                     submitBtn.disabled = false;
@@ -1941,6 +1971,32 @@
         async function submitFromModal(appId) {
             await submitApplication(appId);
             closeApplyModal();
+        }
+        
+        // Confirm external submission on hackathon website
+        async function confirmExternalSubmission(appId) {
+            const confirmationInput = document.getElementById('confirmationInput');
+            const confirmation = confirmationInput ? confirmationInput.value.trim() : '';
+            
+            try {
+                const res = await fetch(`/api/applications/${appId}/confirm-external`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirmation: confirmation })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('External submission confirmed! Good luck! 🎉', 'success');
+                    // Refresh applications and hackathons to update badges
+                    await Promise.all([loadApplications(), loadHackathons()]);
+                    closeApplyModal();
+                } else {
+                    showToast(data.error || 'Failed to confirm', 'error');
+                }
+            } catch (err) {
+                showToast('Error confirming submission', 'error');
+            }
         }
 
         // Close Apply Modal

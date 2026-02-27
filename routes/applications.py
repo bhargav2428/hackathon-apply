@@ -181,3 +181,31 @@ def auto_apply(app_id):
     except Exception as e:
         application.mark_error(str(e))
         return jsonify({'error': str(e)}), 500
+
+
+@applications_bp.route('/<app_id>/confirm-external', methods=['POST'])
+@login_required
+def confirm_external_submission(app_id):
+    """
+    Confirm that user has actually submitted on the hackathon website.
+    This is a manual confirmation to track real submissions.
+    """
+    application = Application.objects(id=app_id, user_id=str(current_user.id)).first()
+    if not application:
+        return jsonify({'error': 'Application not found'}), 404
+    
+    data = request.get_json() or {}
+    confirmation = data.get('confirmation', '')  # Optional confirmation number/notes
+    
+    # Mark as externally submitted
+    application.mark_external_submitted(confirmation=confirmation)
+    
+    # Also mark as submitted if not already
+    if application.status not in ['submitted', 'accepted']:
+        application.status = 'submitted'
+        application.save()
+    
+    return jsonify({
+        'message': 'External submission confirmed! Good luck with your hackathon!',
+        'application': application.to_dict()
+    }), 200
