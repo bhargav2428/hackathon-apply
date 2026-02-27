@@ -5,7 +5,16 @@ import os
 import asyncio
 from datetime import datetime
 from typing import Dict, Any, Optional
-from playwright.async_api import async_playwright, Page, Browser
+
+# Make playwright import optional for environments without browser support
+try:
+    from playwright.async_api import async_playwright, Page, Browser
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    async_playwright = None
+    Page = None
+    Browser = None
 
 
 class AutoApplyBot:
@@ -21,6 +30,12 @@ class AutoApplyBot:
         """
         Apply to a hackathon synchronously (wrapper for async)
         """
+        if not PLAYWRIGHT_AVAILABLE:
+            return {
+                'success': False,
+                'error': 'Auto-apply not available: Playwright not installed. Please apply manually.',
+                'manual_apply_required': True
+            }
         return asyncio.run(self._apply_async(hackathon, profile, application))
     
     async def _apply_async(self, hackathon, profile, application) -> Dict[str, Any]:
