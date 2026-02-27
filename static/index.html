@@ -1,0 +1,2631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackBot - AI Hackathon Auto Apply</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-light: rgba(99, 102, 241, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-card-hover: #1a1a24;
+            --border: #1e1e2e;
+            --text: #ffffff;
+            --text-muted: #71717a;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Auth Page */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+                var(--bg-dark);
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .auth-logo p {
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Main App Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding-left: 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-details {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon.purple { background: var(--primary-light); color: var(--primary); }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .stat-icon.yellow { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+        }
+
+        th {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .badge-submitted { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .badge-approved { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        /* Hackathon Cards */
+        .hackathon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .hackathon-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .hackathon-card.applied {
+            border-color: var(--success);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+
+        .hackathon-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .hackathon-card.applied:hover {
+            border-color: var(--success);
+        }
+
+        .hackathon-banner {
+            height: 120px;
+            background: var(--gradient-1);
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .hackathon-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .hackathon-badge + .hackathon-badge {
+            top: 44px;
+        }
+
+        .hackathon-content {
+            padding: 20px;
+        }
+
+        .hackathon-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .hackathon-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .hackathon-meta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .hackathon-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .hackathon-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .hackathon-tag {
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .hackathon-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .hackathon-actions .btn {
+            flex: 1;
+            padding: 12px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Profile Form */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .profile-grid .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* AI Generation Section */
+        .ai-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .ai-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .ai-section-header i {
+            font-size: 24px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ai-section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-output {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            min-width: 300px;
+        }
+
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.info { border-left: 3px solid var(--primary); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Mobile Toggle */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+        }
+
+        .search-bar i {
+            color: var(--text-muted);
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-grid .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hackathon-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .ai-preview {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 8px;
+        }
+
+        .ai-preview-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Validation Styles */
+        .validation-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .validation-item .validation-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 11px;
+        }
+
+        .validation-item.valid .validation-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .validation-item.invalid .validation-icon {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .validation-item .validation-label {
+            color: var(--text-muted);
+            min-width: 60px;
+        }
+
+        .validation-item .validation-value {
+            color: var(--text-primary);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .validation-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .validation-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .validation-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Apply Modal -->
+    <div class="modal-overlay" id="applyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-paper-plane" style="margin-right: 10px; color: var(--primary);"></i>Apply to Hackathon</h2>
+                <button class="modal-close" onclick="closeApplyModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-label">Hackathon</div>
+                    <div class="detail-value" id="modalHackathonName" style="font-size: 18px; font-weight: 600;"></div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value" id="modalHackathonDesc"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="detail-section">
+                        <div class="detail-label">Deadline</div>
+                        <div class="detail-value" id="modalHackathonDeadline"></div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Prize</div>
+                        <div class="detail-value" id="modalHackathonPrize"></div>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Tags</div>
+                    <div class="detail-value" id="modalHackathonTags"></div>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid var(--border); margin: 24px 0;">
+                
+                <div class="detail-section">
+                    <div class="detail-label">
+                        <i class="fas fa-magic" style="color: var(--primary);"></i> AI-Generated Project Idea (Preview)
+                    </div>
+                    <div class="ai-preview" id="modalProjectIdea">
+                        <div style="text-align: center; padding: 20px;">
+                            <button class="btn btn-secondary" id="generatePreviewBtn" onclick="generatePreview()">
+                                <i class="fas fa-sparkles"></i> Generate AI Idea
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+                <button class="btn btn-primary" id="confirmApplyBtn" onclick="confirmApply()">
+                    <i class="fas fa-check"></i> Confirm & Create Application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hackathon Detail Modal -->
+    <div class="modal-overlay" id="hackathonDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-trophy" style="margin-right: 10px; color: var(--warning);"></i>Hackathon Details</h2>
+                <button class="modal-close" onclick="closeDetailModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="hackathonDetailContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">Close</button>
+                <button class="btn btn-primary" id="detailApplyBtn">
+                    <i class="fas fa-paper-plane"></i> Apply Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1><i class="fas fa-robot"></i> HackBot</h1>
+                <p>Your AI-powered hackathon assistant</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Sign In</button>
+                <button class="auth-tab" data-tab="register">Sign Up</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <p id="loginError" class="error-message"></p>
+            </form>
+
+            <form id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="registerName" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="registerEmail" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Min 6 characters" minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                <p id="registerError" class="error-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Mobile Toggle -->
+        <button class="mobile-toggle" id="mobileToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-robot" style="font-size: 24px; color: var(--primary);"></i>
+                <h2>HackBot</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a class="nav-item" data-page="hackathons">
+                        <i class="fas fa-trophy"></i> Hackathons
+                    </a>
+                    <a class="nav-item" data-page="applications">
+                        <i class="fas fa-paper-plane"></i> Applications
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">AI Tools</div>
+                    <a class="nav-item" data-page="ai-ideas">
+                        <i class="fas fa-lightbulb"></i> AI Ideas
+                    </a>
+                    <a class="nav-item" data-page="ai-motivation">
+                        <i class="fas fa-pen-fancy"></i> AI Motivation
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a class="nav-item" data-page="profile">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a class="nav-item" data-page="settings">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">User</div>
+                        <div class="user-email" id="userEmail">user@email.com</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="logoutBtn" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back! Here's your hackathon overview</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-paper-plane"></i></div>
+                        <div class="stat-value" id="totalApps">0</div>
+                        <div class="stat-label">Total Applications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+                        <div class="stat-value" id="pendingApps">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="submittedApps">0</div>
+                        <div class="stat-label">Submitted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fas fa-trophy"></i></div>
+                        <div class="stat-value" id="upcomingHackathons">0</div>
+                        <div class="stat-label">Upcoming Hackathons</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" style="width: auto;" onclick="navigateTo('hackathons')">
+                            <i class="fas fa-search"></i> Browse Hackathons
+                        </button>
+                        <button class="btn btn-secondary" style="width: auto;" onclick="navigateTo('ai-ideas')">
+                            <i class="fas fa-lightbulb"></i> Generate Ideas
+                        </button>
+                        <button class="btn btn-secondary" style="width: auto;" onclick="navigateTo('profile')">
+                            <i class="fas fa-user-edit"></i> Complete Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hackathons Page -->
+            <div id="hackathonsPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Discover Hackathons</h1>
+                    <p class="page-subtitle">Find the perfect hackathon to showcase your skills</p>
+                </div>
+
+                <div class="search-bar" style="display: flex; gap: 12px; align-items: center;">
+                    <div style="flex: 1; position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="hackathonSearch" placeholder="Search hackathons..." style="padding-left: 44px; width: 100%;">
+                    </div>
+                    <button class="btn btn-primary" id="aiSearchBtn" style="white-space: nowrap;">
+                        <i class="fas fa-magic"></i> AI Search
+                    </button>
+                    <button class="btn btn-secondary" id="refreshHackathonsBtn" style="white-space: nowrap;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div id="hackathonCount" style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;"></div>
+
+                <div class="hackathon-grid" id="hackathonList">
+                    <div class="empty-state" style="grid-column: span 2;">
+                        <i class="fas fa-trophy"></i>
+                        <h3>Loading hackathons...</h3>
+                        <p>Please wait while we fetch the latest hackathons</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Page -->
+            <div id="applicationsPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">My Applications</h1>
+                    <p class="page-subtitle">Track and manage your hackathon applications</p>
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn active" data-status="all">All</button>
+                    <button class="filter-btn" data-status="pending">Pending</button>
+                    <button class="filter-btn" data-status="submitted">Submitted</button>
+                </div>
+
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hackathon</th>
+                                    <th>Status</th>
+                                    <th>Applied</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsList">
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="empty-state">
+                                            <i class="fas fa-paper-plane"></i>
+                                            <h3>No applications yet</h3>
+                                            <p>Apply to hackathons to see them here!</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Ideas Page -->
+            <div id="ai-ideasPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">AI Project Ideas</h1>
+                    <p class="page-subtitle">Generate innovative project ideas using AI</p>
+                </div>
+
+                <div class="ai-section">
+                    <div class="ai-section-header">
+                        <i class="fas fa-magic"></i>
+                        <h3 class="ai-section-title">Generate Project Idea</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Hackathon</label>
+                        <select id="ideaHackathonSelect">
+                            <option value="">Select a hackathon...</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="generateIdeaBtn" style="width: auto;">
+                        <i class="fas fa-sparkles"></i> Generate Idea
+                    </button>
+                    <div id="ideaOutput" class="ai-output hidden"></div>
+                </div>
+            </div>
+
+            <!-- AI Motivation Page -->
+            <div id="ai-motivationPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">AI Motivation Letter</h1>
+                    <p class="page-subtitle">Create compelling motivation letters with AI</p>
+                </div>
+
+                <div class="ai-section">
+                    <div class="ai-section-header">
+                        <i class="fas fa-pen-nib"></i>
+                        <h3 class="ai-section-title">Generate Motivation Letter</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Hackathon</label>
+                        <select id="motivationHackathonSelect">
+                            <option value="">Select a hackathon...</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="generateMotivationBtn" style="width: auto;">
+                        <i class="fas fa-sparkles"></i> Generate Letter
+                    </button>
+                    <div id="motivationOutput" class="ai-output hidden"></div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profilePage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">My Profile</h1>
+                    <p class="page-subtitle">Complete your profile for better AI-generated content</p>
+                </div>
+
+                <!-- Resume Upload Section -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-file-alt" style="margin-right: 8px;"></i> Auto-Fill from Resume</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted); margin-bottom: 16px;">
+                            Upload your resume or paste the text to automatically fill your profile using AI.
+                        </p>
+                        
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+                            <!-- File Upload -->
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500;">Upload Resume (PDF, DOC, DOCX)</label>
+                                <div style="position: relative;">
+                                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="document.getElementById('resumeFile').click()">
+                                        <i class="fas fa-upload"></i> Choose File
+                                    </button>
+                                    <span id="resumeFileName" style="display: block; margin-top: 8px; font-size: 12px; color: var(--text-muted);"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paste Resume Text -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label>Or Paste Resume Text</label>
+                            <textarea id="resumeText" rows="6" placeholder="Paste your resume content here..."></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button type="button" class="btn btn-primary" id="parseResumeBtn" style="width: auto;">
+                                <i class="fas fa-magic"></i> Parse with AI & Auto-Fill
+                            </button>
+                        </div>
+                        
+                        <div id="resumeParseStatus" style="margin-top: 12px; font-size: 14px; display: none;"></div>
+                        
+                        <!-- Validation Preview -->
+                        <div id="resumeValidation" style="display: none; margin-top: 20px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border);">
+                            <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-clipboard-check" style="color: var(--primary);"></i>
+                                Extraction Validation
+                                <span id="validationConfidence" class="badge" style="margin-left: auto;"></span>
+                            </h4>
+                            
+                            <!-- Contact Info -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                                <div class="validation-item" id="validationName">
+                                    <span class="validation-icon"></span>
+                                    <span class="validation-label">Name</span>
+                                    <span class="validation-value"></span>
+                                </div>
+                                <div class="validation-item" id="validationEmail">
+                                    <span class="validation-icon"></span>
+                                    <span class="validation-label">Email</span>
+                                    <span class="validation-value"></span>
+                                </div>
+                                <div class="validation-item" id="validationPhone">
+                                    <span class="validation-icon"></span>
+                                    <span class="validation-label">Phone</span>
+                                    <span class="validation-value"></span>
+                                </div>
+                                <div class="validation-item" id="validationGithub">
+                                    <span class="validation-icon"></span>
+                                    <span class="validation-label">GitHub</span>
+                                    <span class="validation-value"></span>
+                                </div>
+                                <div class="validation-item" id="validationLinkedin">
+                                    <span class="validation-icon"></span>
+                                    <span class="validation-label">LinkedIn</span>
+                                    <span class="validation-value"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Skills Summary -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                                <div class="validation-stat">
+                                    <div class="validation-stat-value" id="langCount">0</div>
+                                    <div class="validation-stat-label">Languages</div>
+                                </div>
+                                <div class="validation-stat">
+                                    <div class="validation-stat-value" id="frameworkCount">0</div>
+                                    <div class="validation-stat-label">Frameworks</div>
+                                </div>
+                                <div class="validation-stat">
+                                    <div class="validation-stat-value" id="skillCount">0</div>
+                                    <div class="validation-stat-label">Skills</div>
+                                </div>
+                                <div class="validation-stat">
+                                    <div class="validation-stat-value" id="toolCount">0</div>
+                                    <div class="validation-stat-label">Tools</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Warnings -->
+                            <div id="validationWarnings" style="display: none;">
+                                <h5 style="margin-bottom: 8px; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> Warnings</h5>
+                                <ul id="warningsList" style="margin: 0; padding-left: 20px; color: var(--text-muted); font-size: 13px;"></ul>
+                            </div>
+                            
+                            <!-- AI Enhanced Badge -->
+                            <div id="aiEnhancedBadge" style="display: none; margin-top: 12px; padding: 8px 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; font-size: 13px;">
+                                <i class="fas fa-sparkles" style="color: var(--primary);"></i>
+                                <span style="color: var(--text-muted);">AI-enhanced data extraction</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-user" style="margin-right: 8px;"></i> Profile Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm">
+                            <div class="profile-grid">
+                                <div class="form-group full-width">
+                                    <label>Bio</label>
+                                    <textarea id="profileBio" placeholder="Tell us about yourself, your experience, and what you're passionate about..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Skills (comma separated)</label>
+                                    <input type="text" id="profileSkills" placeholder="Python, JavaScript, React, Node.js...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Frameworks (comma separated)</label>
+                                    <input type="text" id="profileFrameworks" placeholder="Flask, TensorFlow, Next.js, Django...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Programming Languages (comma separated)</label>
+                                    <input type="text" id="profileLanguages" placeholder="Python, JavaScript, Java, C++...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Experience Level</label>
+                                    <select id="profileExperience">
+                                        <option value="">Select your level...</option>
+                                        <option value="beginner">Beginner (0-1 years)</option>
+                                        <option value="intermediate">Intermediate (1-3 years)</option>
+                                        <option value="advanced">Advanced (3-5 years)</option>
+                                        <option value="expert">Expert (5+ years)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>GitHub URL</label>
+                                    <input type="url" id="profileGithub" placeholder="https://github.com/username">
+                                </div>
+                                <div class="form-group">
+                                    <label>LinkedIn URL</label>
+                                    <input type="url" id="profileLinkedin" placeholder="https://linkedin.com/in/username">
+                                </div>
+                                <div class="form-group">
+                                    <label>Portfolio URL</label>
+                                    <input type="url" id="profilePortfolio" placeholder="https://yourportfolio.com">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Interests (comma separated)</label>
+                                    <input type="text" id="profileInterests" placeholder="AI, Web3, IoT, Mobile Development...">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: auto; margin-top: 16px;">
+                                <i class="fas fa-save"></i> Save Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                    <p class="page-subtitle">Customize your HackBot experience</p>
+                </div>
+
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fab fa-telegram" style="margin-right: 8px;"></i> Telegram Integration</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted); margin-bottom: 16px;">
+                            Connect your Telegram to receive instant notifications about hackathons and application updates.
+                        </p>
+                        <div class="form-group">
+                            <label>Telegram Chat ID</label>
+                            <input type="text" id="telegramChatId" placeholder="Enter your Telegram chat ID">
+                        </div>
+                        <button class="btn btn-primary" id="linkTelegramBtn" style="width: auto;">
+                            <i class="fab fa-telegram"></i> Link Telegram
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bell" style="margin-right: 8px;"></i> Notifications</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted);">
+                            Notification preferences coming soon...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State
+        let currentUser = null;
+        let hackathons = [];
+        let applications = [];
+
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const appContainer = document.getElementById('appContainer');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        // Navigate function
+        function navigateTo(page) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`${page}Page`).classList.remove('hidden');
+        }
+
+        // Auth Tabs
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                if (tab.dataset.tab === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                } else {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = data.user;
+                    showApp();
+                    showToast('Welcome back!', 'success');
+                } else {
+                    document.getElementById('loginError').textContent = data.error || 'Login failed';
+                }
+            } catch (err) {
+                document.getElementById('loginError').textContent = 'Connection error';
+            }
+        });
+
+        // Register
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = data.user;
+                    showApp();
+                    showToast('Account created successfully!', 'success');
+                } else {
+                    document.getElementById('registerError').textContent = data.error || 'Registration failed';
+                }
+            } catch (err) {
+                document.getElementById('registerError').textContent = 'Connection error';
+            }
+        });
+
+        // Show App
+        function showApp() {
+            authContainer.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            
+            loadDashboard();
+            loadHackathons();
+            loadApplications();
+            loadProfile();
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.dataset.page;
+                navigateTo(page);
+                document.getElementById('sidebar').classList.remove('open');
+            });
+        });
+
+        // Mobile Toggle
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            currentUser = null;
+            authContainer.classList.remove('hidden');
+            appContainer.classList.add('hidden');
+            showToast('Logged out successfully', 'info');
+        });
+
+        // Load Dashboard
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard/stats');
+                const data = await res.json();
+                
+                document.getElementById('totalApps').textContent = data.total_applications || 0;
+                document.getElementById('pendingApps').textContent = data.pending || 0;
+                document.getElementById('submittedApps').textContent = data.submitted || 0;
+                document.getElementById('upcomingHackathons').textContent = data.upcoming_hackathons || 0;
+            } catch (err) {
+                console.error('Error loading dashboard:', err);
+            }
+        }
+
+        // Load Hackathons
+        async function loadHackathons() {
+            try {
+                const res = await fetch('/api/hackathons');
+                const data = await res.json();
+                hackathons = data.hackathons || [];
+                renderHackathons();
+                populateHackathonSelects();
+            } catch (err) {
+                console.error('Error loading hackathons:', err);
+            }
+        }
+
+        // Render Hackathons
+        // Helper to get application for a hackathon
+        function getApplicationForHackathon(hackathonId) {
+            return applications.find(app => app.hackathon_id === hackathonId);
+        }
+
+        function renderHackathons() {
+            const container = document.getElementById('hackathonList');
+            
+            if (hackathons.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: span 2;">
+                        <i class="fas fa-trophy"></i>
+                        <h3>No hackathons found</h3>
+                        <p>Check back later for new opportunities or add hackathons manually!</p>
+                        <button class="btn btn-primary" style="width: auto; margin-top: 16px;" onclick="showAddHackathonModal()">
+                            <i class="fas fa-plus"></i> Add Hackathon
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = hackathons.map(h => {
+                const existingApp = getApplicationForHackathon(h.id);
+                const isApplied = existingApp && existingApp.status === 'submitted';
+                const isPending = existingApp && (existingApp.status === 'pending' || existingApp.status === 'auto_generated');
+                
+                return `
+                <div class="hackathon-card ${isApplied ? 'applied' : ''}">
+                    <div class="hackathon-banner">
+                        <span class="hackathon-badge">${h.is_active ? '🟢 Active' : '🔴 Closed'}</span>
+                        ${isApplied ? '<span class="hackathon-badge" style="background: var(--success);">✅ Applied</span>' : ''}
+                        ${isPending ? '<span class="hackathon-badge" style="background: var(--warning);">⏳ Draft</span>' : ''}
+                    </div>
+                    <div class="hackathon-content">
+                        <h3 class="hackathon-title">${h.name}</h3>
+                        <p class="hackathon-desc">${h.description || 'No description available'}</p>
+                        <div class="hackathon-meta">
+                            <div class="hackathon-meta-item">
+                                <i class="fas fa-calendar"></i>
+                                ${h.deadline ? new Date(h.deadline).toLocaleDateString() : 'No deadline'}
+                            </div>
+                            ${h.prize ? `<div class="hackathon-meta-item"><i class="fas fa-gift"></i> ${h.prize}</div>` : ''}
+                        </div>
+                        <div class="hackathon-tags">
+                            ${(h.tags || []).slice(0, 3).map(t => `<span class="hackathon-tag">${t}</span>`).join('')}
+                        </div>
+                        <div class="hackathon-actions">
+                            ${h.url ? `<button class="btn btn-secondary" onclick="window.open('${h.url}', '_blank')"><i class="fas fa-external-link-alt"></i> View</button>` : ''}
+                            <button class="btn ${isApplied ? 'btn-success' : 'btn-primary'}" onclick="applyToHackathon('${h.id}')">
+                                <i class="fas ${isApplied ? 'fa-check-circle' : isPending ? 'fa-edit' : 'fa-paper-plane'}"></i> 
+                                ${isApplied ? 'View Application' : isPending ? 'Continue Application' : 'Apply'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Populate Hackathon Selects
+        function populateHackathonSelects() {
+            const options = hackathons.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+            document.getElementById('ideaHackathonSelect').innerHTML = `<option value="">Select a hackathon...</option>${options}`;
+            document.getElementById('motivationHackathonSelect').innerHTML = `<option value="">Select a hackathon...</option>${options}`;
+        }
+
+        // Current hackathon for modal
+        let currentApplyHackathon = null;
+        let generatedIdea = null;
+
+        // Apply to Hackathon - Show Modal
+        function applyToHackathon(hackathonId) {
+            const hackathon = hackathons.find(h => h.id === hackathonId);
+            if (!hackathon) {
+                showToast('Hackathon not found', 'error');
+                return;
+            }
+            
+            currentApplyHackathon = hackathon;
+            generatedIdea = null;
+            
+            // Check for existing application
+            const existingApp = getApplicationForHackathon(hackathonId);
+            
+            // Populate modal
+            document.getElementById('modalHackathonName').textContent = hackathon.name;
+            document.getElementById('modalHackathonDesc').textContent = hackathon.description || 'No description available';
+            document.getElementById('modalHackathonDeadline').textContent = hackathon.deadline ? new Date(hackathon.deadline).toLocaleDateString() : 'No deadline';
+            document.getElementById('modalHackathonPrize').textContent = hackathon.prize || 'Not specified';
+            document.getElementById('modalHackathonTags').innerHTML = (hackathon.tags || []).map(t => `<span class="hackathon-tag">${t}</span>`).join(' ');
+            
+            // Show existing application or generate button
+            if (existingApp) {
+                let ideaHTML = '';
+                if (existingApp.generated_project_idea) {
+                    let idea = existingApp.generated_project_idea;
+                    try { idea = JSON.parse(idea); } catch(e) {}
+                    
+                    if (typeof idea === 'object') {
+                        ideaHTML = `
+                            <div class="ai-preview-title"><i class="fas fa-lightbulb"></i> ${idea.project_name || 'Project Idea'}</div>
+                            <p><strong>Problem:</strong> ${idea.problem_statement || 'N/A'}</p>
+                            <p><strong>Solution:</strong> ${idea.solution || 'N/A'}</p>
+                            ${idea.key_features ? `<p><strong>Features:</strong> ${idea.key_features.join(', ')}</p>` : ''}
+                            ${idea.tech_stack ? `<p><strong>Tech Stack:</strong> ${idea.tech_stack.join(', ')}</p>` : ''}
+                        `;
+                    } else {
+                        ideaHTML = `<div class="ai-preview-title"><i class="fas fa-lightbulb"></i> Generated Idea</div><p>${idea}</p>`;
+                    }
+                }
+                
+                if (existingApp.generated_motivation) {
+                    ideaHTML += `
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 16px 0;">
+                        <div class="ai-preview-title"><i class="fas fa-pen-fancy"></i> Motivation</div>
+                        <p>${existingApp.generated_motivation}</p>
+                    `;
+                }
+                
+                const statusBadge = getStatusBadge(existingApp.status);
+                document.getElementById('modalProjectIdea').innerHTML = `
+                    <div style="margin-bottom: 16px;">
+                        <span style="font-weight: 600;">Application Status:</span> ${statusBadge}
+                        ${existingApp.is_auto_applied ? '<span class="badge badge-info" style="margin-left: 8px;"><i class="fas fa-robot"></i> Auto-applied</span>' : ''}
+                    </div>
+                    ${existingApp.submitted_at ? `<p style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-paper-plane"></i> Submitted: ${new Date(existingApp.submitted_at).toLocaleString()}</p>` : ''}
+                    ${ideaHTML ? `<div class="ai-preview">${ideaHTML}</div>` : '<p style="color: var(--text-muted);">No AI content generated yet.</p>'}
+                    ${existingApp.status !== 'submitted' ? `
+                        <div style="margin-top: 16px; display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="generatePreview()">
+                                <i class="fas fa-sparkles"></i> Regenerate Idea
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+                
+                // Update submit button based on status
+                const submitBtn = document.getElementById('confirmApplyBtn');
+                if (existingApp.status === 'submitted') {
+                    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Already Submitted';
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('btn-success');
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.onclick = null;
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('btn-success');
+                    submitBtn.classList.add('btn-primary');
+                    submitBtn.onclick = () => submitFromModal(existingApp.id);
+                }
+            } else {
+                // Reset preview for new application
+                document.getElementById('modalProjectIdea').innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <button class="btn btn-secondary" onclick="generatePreview()">
+                            <i class="fas fa-sparkles"></i> Generate AI Project Idea
+                        </button>
+                    </div>
+                `;
+                
+                // Reset submit button
+                const submitBtn = document.getElementById('confirmApplyBtn');
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Confirm & Create Application';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-success');
+                submitBtn.classList.add('btn-primary');
+                submitBtn.onclick = confirmApply;
+            }
+            
+            document.getElementById('applyModal').classList.add('active');
+        }
+        
+        // Submit from modal when application already exists
+        async function submitFromModal(appId) {
+            await submitApplication(appId);
+            closeApplyModal();
+        }
+
+        // Close Apply Modal
+        function closeApplyModal() {
+            document.getElementById('applyModal').classList.remove('active');
+            currentApplyHackathon = null;
+            generatedIdea = null;
+        }
+
+        // Generate Preview
+        async function generatePreview() {
+            if (!currentApplyHackathon) return;
+            
+            const previewEl = document.getElementById('modalProjectIdea');
+            previewEl.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 12px; color: var(--text-muted);">Generating AI project idea...</p>
+                </div>
+            `;
+            
+            try {
+                const res = await fetch('/api/ai/generate/idea', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: currentApplyHackathon.id })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    generatedIdea = data.idea;
+                    let ideaHTML = '';
+                    
+                    if (typeof data.idea === 'object') {
+                        ideaHTML = `
+                            <div class="ai-preview-title"><i class="fas fa-lightbulb"></i> ${data.idea.project_name || 'Project Idea'}</div>
+                            <p><strong>Problem:</strong> ${data.idea.problem_statement || 'N/A'}</p>
+                            <p><strong>Solution:</strong> ${data.idea.solution || 'N/A'}</p>
+                            ${data.idea.key_features ? `<p><strong>Features:</strong> ${data.idea.key_features.join(', ')}</p>` : ''}
+                            ${data.idea.tech_stack ? `<p><strong>Tech Stack:</strong> ${data.idea.tech_stack.join(', ')}</p>` : ''}
+                        `;
+                    } else {
+                        ideaHTML = `<div class="ai-preview-title"><i class="fas fa-lightbulb"></i> Generated Idea</div><p>${data.idea}</p>`;
+                    }
+                    
+                    previewEl.innerHTML = ideaHTML;
+                    showToast('Idea generated!', 'success');
+                } else {
+                    previewEl.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: var(--danger);">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>Failed to generate: ${data.error || 'Unknown error'}</p>
+                            <button class="btn btn-secondary" onclick="generatePreview()" style="margin-top: 12px;">
+                                <i class="fas fa-redo"></i> Try Again
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                previewEl.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--danger);">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Connection error</p>
+                        <button class="btn btn-secondary" onclick="generatePreview()" style="margin-top: 12px;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Confirm Apply
+        async function confirmApply() {
+            if (!currentApplyHackathon) return;
+            
+            const btn = document.getElementById('confirmApplyBtn');
+            btn.innerHTML = '<div class="spinner"></div> Creating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/applications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        hackathon_id: currentApplyHackathon.id,
+                        generated_idea: generatedIdea ? JSON.stringify(generatedIdea) : null
+                    })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Application created! Go to Applications to view and submit.', 'success');
+                    closeApplyModal();
+                    loadApplications();
+                    loadDashboard();
+                    navigateTo('applications');
+                } else {
+                    showToast(data.error || 'Failed to apply', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-check"></i> Confirm & Create Application';
+                btn.disabled = false;
+            }
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('applyModal').addEventListener('click', (e) => {
+            if (e.target.id === 'applyModal') closeApplyModal();
+        });
+
+        // Load Applications
+        async function loadApplications() {
+            try {
+                const res = await fetch('/api/applications');
+                const data = await res.json();
+                applications = data.applications || [];
+                renderApplications();
+                renderHackathons(); // Update hackathon cards to show applied status
+            } catch (err) {
+                console.error('Error loading applications:', err);
+            }
+        }
+
+        // Render Applications
+        function renderApplications() {
+            const tbody = document.getElementById('applicationsList');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fas fa-paper-plane"></i>
+                                <h3>No applications yet</h3>
+                                <p>Apply to hackathons to see them here!</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = applications.map(app => {
+                const statusBadge = getStatusBadge(app.status);
+                const submittedDate = app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : '-';
+                
+                return `
+                <tr>
+                    <td>
+                        <strong>${app.hackathon_name || 'Unknown Hackathon'}</strong>
+                        ${app.is_auto_applied ? '<br><small style="color: var(--success);"><i class="fas fa-robot"></i> Auto-applied</small>' : ''}
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div style="font-size: 13px;">
+                            <div>Created: ${new Date(app.created_at).toLocaleDateString()}</div>
+                            ${app.submitted_at ? `<div style="color: var(--success);">Submitted: ${submittedDate}</div>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            ${app.status === 'pending' ? `
+                                <button class="btn btn-secondary" style="padding: 8px 12px; width: auto;" onclick="generateForApp('${app.id}')">
+                                    <i class="fas fa-magic"></i> Generate
+                                </button>
+                                <button class="btn btn-primary" style="padding: 8px 12px; width: auto;" onclick="submitApplication('${app.id}')">
+                                    <i class="fas fa-paper-plane"></i> Submit
+                                </button>
+                            ` : ''}
+                            ${app.status === 'auto_generated' ? `
+                                <button class="btn btn-primary" style="padding: 8px 12px; width: auto;" onclick="submitApplication('${app.id}')">
+                                    <i class="fas fa-paper-plane"></i> Submit
+                                </button>
+                            ` : ''}
+                            ${app.status === 'submitted' ? `
+                                <span style="color: var(--success); padding: 8px 12px;">
+                                    <i class="fas fa-check-circle"></i> Submitted
+                                </span>
+                            ` : ''}
+                            <button class="btn btn-secondary" style="padding: 8px 12px; width: auto;" onclick="viewApplication('${app.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        // Get Status Badge
+        function getStatusBadge(status) {
+            const statusConfig = {
+                'pending': { color: 'var(--warning)', icon: 'clock', text: 'Pending' },
+                'auto_generated': { color: 'var(--primary)', icon: 'magic', text: 'AI Generated' },
+                'submitted': { color: 'var(--success)', icon: 'check-circle', text: 'Submitted' },
+                'error': { color: 'var(--danger)', icon: 'exclamation-circle', text: 'Error' }
+            };
+            
+            const config = statusConfig[status] || { color: 'var(--text-muted)', icon: 'question', text: status };
+            
+            return `
+                <span class="badge" style="background: ${config.color}20; color: ${config.color}; border: 1px solid ${config.color}40;">
+                    <i class="fas fa-${config.icon}" style="margin-right: 4px;"></i>
+                    ${config.text}
+                </span>
+            `;
+        }
+
+        // Submit Application
+        async function submitApplication(appId) {
+            if (!confirm('Are you sure you want to submit this application? This will attempt to auto-apply using the generated content.')) {
+                return;
+            }
+            
+            showToast('Submitting application...', 'info');
+            
+            try {
+                const res = await fetch(`/api/applications/${appId}/submit`, {
+                    method: 'POST'
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Application submitted successfully!', 'success');
+                    loadApplications();
+                    loadDashboard();
+                } else {
+                    showToast(data.error || 'Submission failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        }
+
+        // View Application Details
+        async function viewApplication(appId) {
+            try {
+                const res = await fetch(`/api/applications/${appId}`);
+                const app = await res.json();
+                
+                if (!res.ok) {
+                    showToast('Failed to load application', 'error');
+                    return;
+                }
+                
+                let content = `
+                    <div class="detail-section">
+                        <div class="detail-label">Hackathon</div>
+                        <div class="detail-value" style="font-size: 18px; font-weight: 600;">${app.hackathon_name || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            ${getStatusBadge(app.status)}
+                            ${app.is_auto_applied ? '<span class="badge badge-info" style="margin-left: 8px;"><i class="fas fa-robot"></i> Auto-applied</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Created</div>
+                        <div class="detail-value">${new Date(app.created_at).toLocaleString()}</div>
+                    </div>
+                    ${app.submitted_at ? `
+                    <div class="detail-section">
+                        <div class="detail-label"><i class="fas fa-paper-plane" style="color: var(--success);"></i> Submitted</div>
+                        <div class="detail-value">${new Date(app.submitted_at).toLocaleString()}</div>
+                    </div>
+                    ` : ''}
+                `;
+                
+                if (app.generated_project_idea) {
+                    let idea = app.generated_project_idea;
+                    try { idea = JSON.parse(idea); } catch(e) {}
+                    
+                    content += `
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div class="detail-section">
+                            <div class="detail-label"><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Generated Project Idea</div>
+                            <div class="ai-preview">
+                                ${typeof idea === 'object' ? `
+                                    <div class="ai-preview-title">${idea.project_name || 'Project'}</div>
+                                    <p><strong>Problem:</strong> ${idea.problem_statement || 'N/A'}</p>
+                                    <p><strong>Solution:</strong> ${idea.solution || 'N/A'}</p>
+                                    ${idea.key_features ? `<p><strong>Features:</strong> ${idea.key_features.join(', ')}</p>` : ''}
+                                ` : `<p>${idea}</p>`}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (app.generated_motivation) {
+                    content += `
+                        <div class="detail-section">
+                            <div class="detail-label"><i class="fas fa-pen-fancy" style="color: var(--primary);"></i> Generated Motivation</div>
+                            <div class="ai-preview">
+                                <p>${app.generated_motivation}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('hackathonDetailContent').innerHTML = content;
+                document.getElementById('detailApplyBtn').style.display = app.status === 'pending' || app.status === 'auto_generated' ? 'block' : 'none';
+                document.getElementById('detailApplyBtn').onclick = () => submitApplication(appId);
+                document.getElementById('hackathonDetailModal').classList.add('active');
+                
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        }
+
+        // Close Detail Modal
+        function closeDetailModal() {
+            document.getElementById('hackathonDetailModal').classList.remove('active');
+        }
+
+        document.getElementById('hackathonDetailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'hackathonDetailModal') closeDetailModal();
+        });
+
+        // Generate Content for Application
+        async function generateForApp(appId) {
+            showToast('Generating AI content...', 'info');
+            try {
+                const res = await fetch(`/api/applications/${appId}/generate`, { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('Content generated successfully!', 'success');
+                    loadApplications();
+                } else {
+                    showToast(data.error || 'Generation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        }
+
+        // Generate Idea
+        document.getElementById('generateIdeaBtn').addEventListener('click', async () => {
+            const hackathonId = document.getElementById('ideaHackathonSelect').value;
+            if (!hackathonId) {
+                showToast('Please select a hackathon', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('generateIdeaBtn');
+            btn.innerHTML = '<div class="spinner"></div> Generating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/ai/generate/idea', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: hackathonId })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('ideaOutput').textContent = data.idea;
+                    document.getElementById('ideaOutput').classList.remove('hidden');
+                    showToast('Idea generated!', 'success');
+                } else {
+                    showToast(data.error || 'Generation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate Idea';
+                btn.disabled = false;
+            }
+        });
+
+        // Generate Motivation
+        document.getElementById('generateMotivationBtn').addEventListener('click', async () => {
+            const hackathonId = document.getElementById('motivationHackathonSelect').value;
+            if (!hackathonId) {
+                showToast('Please select a hackathon', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('generateMotivationBtn');
+            btn.innerHTML = '<div class="spinner"></div> Generating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/ai/generate/motivation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: hackathonId })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('motivationOutput').textContent = data.motivation;
+                    document.getElementById('motivationOutput').classList.remove('hidden');
+                    showToast('Letter generated!', 'success');
+                } else {
+                    showToast(data.error || 'Generation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate Letter';
+                btn.disabled = false;
+            }
+        });
+
+        // Load Profile
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('profileBio').value = data.bio || '';
+                    document.getElementById('profileSkills').value = (data.skills || []).join(', ');
+                    document.getElementById('profileFrameworks').value = (data.frameworks || []).join(', ');
+                    document.getElementById('profileLanguages').value = (data.languages || []).join(', ');
+                    document.getElementById('profileExperience').value = data.experience_level || '';
+                    document.getElementById('profileGithub').value = data.github_url || '';
+                    document.getElementById('profileLinkedin').value = data.linkedin_url || '';
+                    document.getElementById('profilePortfolio').value = data.portfolio_url || '';
+                    document.getElementById('profileInterests').value = (data.interests || []).join(', ');
+                }
+            } catch (err) {
+                console.error('Error loading profile:', err);
+            }
+        }
+
+        // Resume file selection
+        document.getElementById('resumeFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('resumeFileName').textContent = file.name;
+            }
+        });
+
+        // Parse Resume with AI
+        document.getElementById('parseResumeBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('resumeFile');
+            const resumeText = document.getElementById('resumeText').value;
+            const statusEl = document.getElementById('resumeParseStatus');
+            const validationEl = document.getElementById('resumeValidation');
+            
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Parsing resume with AI...';
+            statusEl.style.color = 'var(--primary)';
+            validationEl.style.display = 'none';
+            
+            try {
+                let parsedData;
+                let validation;
+                
+                if (fileInput.files.length > 0) {
+                    // Upload file
+                    const formData = new FormData();
+                    formData.append('resume', fileInput.files[0]);
+                    
+                    const res = await fetch('/api/profile/upload-resume', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Failed to parse resume');
+                    }
+                    parsedData = data.parsed_data;
+                    validation = data.validation;
+                } else if (resumeText.trim()) {
+                    // Parse text
+                    const res = await fetch('/api/profile/parse-resume-text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: resumeText })
+                    });
+                    
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.error || 'Failed to parse resume');
+                    }
+                    parsedData = data.parsed_data;
+                    validation = data.validation || {};
+                } else {
+                    throw new Error('Please upload a file or paste resume text');
+                }
+                
+                // Display validation preview
+                displayValidationPreview(parsedData, validation);
+                
+                // Auto-fill form
+                if (parsedData.bio) {
+                    document.getElementById('profileBio').value = parsedData.bio;
+                }
+                if (parsedData.skills && parsedData.skills.length) {
+                    document.getElementById('profileSkills').value = parsedData.skills.join(', ');
+                }
+                if (parsedData.frameworks && parsedData.frameworks.length) {
+                    document.getElementById('profileFrameworks').value = parsedData.frameworks.join(', ');
+                }
+                if (parsedData.programming_languages && parsedData.programming_languages.length) {
+                    document.getElementById('profileLanguages').value = parsedData.programming_languages.join(', ');
+                }
+                if (parsedData.languages && parsedData.languages.length) {
+                    document.getElementById('profileLanguages').value = parsedData.languages.join(', ');
+                }
+                if (parsedData.experience_level) {
+                    document.getElementById('profileExperience').value = parsedData.experience_level;
+                }
+                if (parsedData.github_url || parsedData.github) {
+                    document.getElementById('profileGithub').value = parsedData.github_url || parsedData.github;
+                }
+                if (parsedData.linkedin_url || parsedData.linkedin) {
+                    document.getElementById('profileLinkedin').value = parsedData.linkedin_url || parsedData.linkedin;
+                }
+                if (parsedData.interests && parsedData.interests.length) {
+                    document.getElementById('profileInterests').value = parsedData.interests.join(', ');
+                }
+                
+                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Resume parsed successfully! Review the extraction below and save your profile.';
+                statusEl.style.color = 'var(--success)';
+                showToast('Profile auto-filled from resume!', 'success');
+                
+            } catch (err) {
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + err.message;
+                statusEl.style.color = 'var(--danger)';
+                showToast(err.message, 'error');
+            }
+        });
+        
+        // Display validation preview
+        function displayValidationPreview(parsedData, validation) {
+            const validationEl = document.getElementById('resumeValidation');
+            validationEl.style.display = 'block';
+            
+            // Update validation items
+            updateValidationItem('validationName', parsedData.name);
+            updateValidationItem('validationEmail', parsedData.email);
+            updateValidationItem('validationPhone', parsedData.phone);
+            updateValidationItem('validationGithub', parsedData.github || parsedData.github_url);
+            updateValidationItem('validationLinkedin', parsedData.linkedin || parsedData.linkedin_url);
+            
+            // Update stats
+            document.getElementById('langCount').textContent = (parsedData.programming_languages || []).length;
+            document.getElementById('frameworkCount').textContent = (parsedData.frameworks || []).length;
+            document.getElementById('skillCount').textContent = (parsedData.skills || []).length;
+            document.getElementById('toolCount').textContent = (parsedData.tools || []).length + (parsedData.databases || []).length;
+            
+            // Update confidence badge
+            const confidenceEl = document.getElementById('validationConfidence');
+            const confidence = validation?.confidence || 0;
+            confidenceEl.textContent = `${confidence}% Confidence`;
+            confidenceEl.className = 'badge';
+            if (confidence >= 70) {
+                confidenceEl.classList.add('badge-success');
+            } else if (confidence >= 40) {
+                confidenceEl.classList.add('badge-warning');
+            } else {
+                confidenceEl.classList.add('badge-error');
+            }
+            
+            // Update warnings
+            const warningsEl = document.getElementById('validationWarnings');
+            const warningsList = document.getElementById('warningsList');
+            const warnings = validation?.warnings || [];
+            if (warnings.length > 0) {
+                warningsEl.style.display = 'block';
+                warningsList.innerHTML = warnings.map(w => `<li>${w}</li>`).join('');
+            } else {
+                warningsEl.style.display = 'none';
+            }
+            
+            // AI enhanced badge
+            const aiEnhancedEl = document.getElementById('aiEnhancedBadge');
+            aiEnhancedEl.style.display = validation?.ai_enhanced ? 'block' : 'none';
+        }
+        
+        // Helper to update validation item
+        function updateValidationItem(id, value) {
+            const el = document.getElementById(id);
+            const iconEl = el.querySelector('.validation-icon');
+            const valueEl = el.querySelector('.validation-value');
+            
+            if (value) {
+                el.classList.add('valid');
+                el.classList.remove('invalid');
+                iconEl.innerHTML = '<i class="fas fa-check"></i>';
+                valueEl.textContent = value;
+            } else {
+                el.classList.add('invalid');
+                el.classList.remove('valid');
+                iconEl.innerHTML = '<i class="fas fa-times"></i>';
+                valueEl.textContent = 'Not found';
+            }
+        }
+
+        // Save Profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const profile = {
+                bio: document.getElementById('profileBio').value,
+                skills: document.getElementById('profileSkills').value.split(',').map(s => s.trim()).filter(s => s),
+                frameworks: document.getElementById('profileFrameworks').value.split(',').map(s => s.trim()).filter(s => s),
+                languages: document.getElementById('profileLanguages').value.split(',').map(s => s.trim()).filter(s => s),
+                experience_level: document.getElementById('profileExperience').value,
+                github_url: document.getElementById('profileGithub').value,
+                linkedin_url: document.getElementById('profileLinkedin').value,
+                portfolio_url: document.getElementById('profilePortfolio').value,
+                interests: document.getElementById('profileInterests').value.split(',').map(s => s.trim()).filter(s => s)
+            };
+            
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profile)
+                });
+                
+                if (res.ok) {
+                    showToast('Profile saved successfully!', 'success');
+                } else {
+                    showToast('Failed to save profile', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        // Link Telegram
+        document.getElementById('linkTelegramBtn').addEventListener('click', async () => {
+            const chatId = document.getElementById('telegramChatId').value;
+            if (!chatId) {
+                showToast('Please enter your Telegram chat ID', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/notifications/telegram/link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId })
+                });
+                
+                if (res.ok) {
+                    showToast('Telegram linked successfully!', 'success');
+                } else {
+                    showToast('Failed to link Telegram', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        // Toast Notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Check auth on load
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = data;
+                    showApp();
+                }
+            } catch (err) {
+                console.log('Not authenticated');
+            }
+        }
+
+        checkAuth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,831 @@
+{
+  "name": "AI Hackathon Auto Apply Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "notes": "Runs every 6 hours to check for new hackathons"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/hackathons/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "scrape-hackathons",
+      "name": "Scrape Hackathons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.results.new }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-new-hackathons",
+      "name": "If New Hackathons",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.API_URL}}/api/hackathons?status=upcoming&limit=20",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-upcoming-hackathons",
+      "name": "Get Upcoming Hackathons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Filter hackathons based on criteria\nconst hackathon = $input.item.json;\nconst now = new Date();\nconst deadline = new Date(hackathon.registration_deadline);\nconst daysUntilDeadline = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));\n\n// Only process if:\n// 1. Registration is still open\n// 2. Deadline is within 14 days\n// 3. It's not already applied to\nif (hackathon.is_registration_open && daysUntilDeadline > 0 && daysUntilDeadline <= 14) {\n  return {\n    json: {\n      ...hackathon,\n      days_until_deadline: daysUntilDeadline\n    }\n  };\n}\n\nreturn null;"
+      },
+      "id": "filter-eligible",
+      "name": "Filter Eligible Hackathons",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/ai/eligibility/{{ $json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "check-eligibility",
+      "name": "Check Eligibility",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-eligible",
+              "leftValue": "={{ $json.is_eligible }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "condition-score",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 0.6,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-eligible",
+      "name": "If Eligible",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/applications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ hackathon_id: $json.hackathon_id }) }}",
+        "options": {}
+      },
+      "id": "create-application",
+      "name": "Create Application",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/applications/{{ $json.id }}/generate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "generate-content",
+      "name": "Generate AI Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/ai/ideas/{{ $json.hackathon_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "generate-idea",
+      "name": "Generate Project Idea",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-auto-apply",
+              "leftValue": "={{$env.AUTO_APPLY_ENABLED}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-auto-apply",
+      "name": "If Auto Apply Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2440, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/applications/{{ $json.id }}/auto-apply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "auto-apply",
+      "name": "Auto Apply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'application_submitted', title: 'Auto-Applied Successfully', message: 'Successfully applied to ' + $json.hackathon_name }) }}",
+        "options": {}
+      },
+      "id": "notify-success",
+      "name": "Notify Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2880, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'new_hackathon', title: 'New Eligible Hackathon', message: 'You are eligible for: ' + $json.hackathon_name + ' (Score: ' + Math.round($json.score * 100) + '%)' }) }}",
+        "options": {}
+      },
+      "id": "notify-eligible",
+      "name": "Notify Eligible Hackathon",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2660, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'new_hackathon', title: 'New Hackathons Found', message: $json.results.new + ' new hackathons discovered across all platforms!' }) }}",
+        "options": {}
+      },
+      "id": "notify-new-hackathons",
+      "name": "Notify New Hackathons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "no-new-hackathons",
+      "name": "No New Hackathons",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {},
+      "id": "split-items",
+      "name": "Split Into Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1120, 200],
+      "notes": "Process each hackathon individually"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "daily-deadline-check",
+      "name": "Daily Deadline Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 700],
+      "notes": "Daily check for upcoming deadlines"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.API_URL}}/api/dashboard/upcoming-deadlines?days=3&limit=10",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-urgent-deadlines",
+      "name": "Get Urgent Deadlines",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 700],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-deadlines",
+              "leftValue": "={{ $json.deadlines.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-urgent-deadlines",
+      "name": "If Urgent Deadlines",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create deadline reminder message\nconst deadlines = $input.item.json.deadlines;\nlet message = 'Upcoming deadlines:\\n\\n';\n\nfor (const d of deadlines) {\n  message += `🔔 ${d.hackathon.name}\\n`;\n  message += `   Deadline: ${new Date(d.hackathon.registration_deadline).toLocaleDateString()}\\n`;\n  message += `   Days left: ${d.days_left}\\n\\n`;\n}\n\nreturn {\n  json: {\n    message: message,\n    count: deadlines.length\n  }\n};"
+      },
+      "id": "format-deadlines",
+      "name": "Format Deadline Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'deadline_reminder', title: 'Urgent: ' + $json.count + ' Deadline(s) Approaching', message: $json.message }) }}",
+        "options": {}
+      },
+      "id": "send-deadline-reminder",
+      "name": "Send Deadline Reminder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 600],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "weekly-summary",
+      "name": "Weekly Summary Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 900],
+      "notes": "Weekly activity summary"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.API_URL}}/api/dashboard/overview",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-weekly-stats",
+      "name": "Get Weekly Stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 900],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create weekly summary\nconst stats = $input.item.json;\n\nconst message = `📊 Weekly Summary\\n\\n` +\n  `Total Hackathons: ${stats.hackathons?.total || 0}\\n` +\n  `Upcoming: ${stats.hackathons?.upcoming || 0}\\n` +\n  `Applications: ${stats.applications?.total || 0}\\n` +\n  `  - Pending: ${stats.applications?.pending || 0}\\n` +\n  `  - Submitted: ${stats.applications?.submitted || 0}\\n` +\n  `  - Accepted: ${stats.applications?.accepted || 0}\\n` +\n  `AI Ideas Generated: ${stats.ai_ideas || 0}\\n` +\n  `Profile Completeness: ${stats.profile_completeness || 0}%`;\n\nreturn {\n  json: {\n    message: message\n  }\n};"
+      },
+      "id": "format-weekly-summary",
+      "name": "Format Weekly Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 900]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.API_URL}}/api/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ type: 'system', title: 'Weekly Activity Summary', message: $json.message }) }}",
+        "options": {}
+      },
+      "id": "send-weekly-summary",
+      "name": "Send Weekly Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 900],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-auth",
+          "name": "API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook/manual-scrape",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "manual-scrape-webhook",
+      "name": "Manual Scrape Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 500],
+      "webhookId": "manual-scrape",
+      "notes": "Trigger manual scrape from dashboard"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scrape Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Scrape Webhook": {
+      "main": [
+        [
+          {
+            "node": "Scrape Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Hackathons": {
+      "main": [
+        [
+          {
+            "node": "If New Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If New Hackathons": {
+      "main": [
+        [
+          {
+            "node": "Get Upcoming Hackathons",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify New Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No New Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upcoming Hackathons": {
+      "main": [
+        [
+          {
+            "node": "Split Into Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Items": {
+      "main": [
+        [
+          {
+            "node": "Filter Eligible Hackathons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Eligible Hackathons": {
+      "main": [
+        [
+          {
+            "node": "Check Eligibility",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Eligibility": {
+      "main": [
+        [
+          {
+            "node": "If Eligible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Eligible": {
+      "main": [
+        [
+          {
+            "node": "Create Application",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+
+        ]
+      ]
+    },
+    "Create Application": {
+      "main": [
+        [
+          {
+            "node": "Generate AI Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate AI Content": {
+      "main": [
+        [
+          {
+            "node": "Generate Project Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Project Idea": {
+      "main": [
+        [
+          {
+            "node": "If Auto Apply Enabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Auto Apply Enabled": {
+      "main": [
+        [
+          {
+            "node": "Auto Apply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Eligible Hackathon",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto Apply": {
+      "main": [
+        [
+          {
+            "node": "Notify Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Deadline Check": {
+      "main": [
+        [
+          {
+            "node": "Get Urgent Deadlines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Urgent Deadlines": {
+      "main": [
+        [
+          {
+            "node": "If Urgent Deadlines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Urgent Deadlines": {
+      "main": [
+        [
+          {
+            "node": "Format Deadline Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+
+        ]
+      ]
+    },
+    "Format Deadline Message": {
+      "main": [
+        [
+          {
+            "node": "Send Deadline Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Summary Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Weekly Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weekly Stats": {
+      "main": [
+        [
+          {
+            "node": "Format Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Weekly Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "hackathon",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "name": "automation",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1"
+}
