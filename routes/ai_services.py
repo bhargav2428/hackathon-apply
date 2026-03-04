@@ -28,17 +28,24 @@ def generate_idea():
         ai = AIService()
         idea = ai.generate_project_idea(hackathon, profile)
         
+        # idea is already a dict, store as JSON string
+        import json
         content = AIGeneratedContent(
             user_id=str(current_user.id),
             hackathon_id=hackathon_id,
             content_type='project_idea',
-            content=str(idea)
+            content=json.dumps(idea) if isinstance(idea, dict) else str(idea)
         )
         content.save()
         
-        return jsonify({'idea': str(idea), 'id': str(content.id)}), 200
+        return jsonify({'idea': idea, 'id': str(content.id)}), 200
+    except ValueError as e:
+        # API key not set
+        return jsonify({'error': f'AI configuration error: {str(e)}'}), 500
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Failed to generate: {str(e)}'}), 500
 
 
 @ai_services_bp.route('/generate/motivation', methods=['POST'])
