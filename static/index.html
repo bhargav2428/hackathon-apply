@@ -1253,6 +1253,37 @@
                     <a class="nav-item" data-page="ai-motivation">
                         <i class="fas fa-pen-fancy"></i> AI Motivation
                     </a>
+                    <a class="nav-item" data-page="demo-script">
+                        <i class="fas fa-video"></i> Demo Script
+                    </a>
+                    <a class="nav-item" data-page="translate">
+                        <i class="fas fa-language"></i> Translate
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Advanced</div>
+                    <a class="nav-item" data-page="team-matching">
+                        <i class="fas fa-users"></i> Team Matching
+                    </a>
+                    <a class="nav-item" data-page="winning-patterns">
+                        <i class="fas fa-chart-line"></i> Win Patterns
+                    </a>
+                    <a class="nav-item" data-page="success-prediction">
+                        <i class="fas fa-brain"></i> Predict Success
+                    </a>
+                    <a class="nav-item" data-page="roi-calculator">
+                        <i class="fas fa-calculator"></i> ROI Calculator
+                    </a>
+                    <a class="nav-item" data-page="sponsors">
+                        <i class="fas fa-building"></i> Sponsors
+                    </a>
+                    <a class="nav-item" data-page="calendar">
+                        <i class="fas fa-calendar-alt"></i> Calendar
+                    </a>
+                    <a class="nav-item" data-page="post-hackathon">
+                        <i class="fas fa-rocket"></i> Portfolio
+                    </a>
                 </div>
 
                 <div class="nav-section">
@@ -1262,6 +1293,9 @@
                     </a>
                     <a class="nav-item" data-page="settings">
                         <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a class="nav-item" data-page="admin" id="adminNavItem" style="display: none;">
+                        <i class="fas fa-shield-alt"></i> Admin
                     </a>
                 </div>
             </nav>
@@ -1699,6 +1733,513 @@
                         <p style="color: var(--text-muted);">
                             Notification preferences coming soon...
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Script Page -->
+            <div id="demo-scriptPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">AI Demo Script Generator</h1>
+                    <p class="page-subtitle">Generate pitch scripts and storyboards for your hackathon presentations</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-magic" style="margin-right: 8px;"></i> Generate Pitch Script</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="demoHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Project Name</label>
+                            <input type="text" id="demoProjectName" placeholder="Your project name">
+                        </div>
+                        <div class="form-group">
+                            <label>Project Description</label>
+                            <textarea id="demoProjectDesc" rows="3" placeholder="Brief description of your project..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Script Length</label>
+                            <select id="demoScriptLength" class="form-control">
+                                <option value="1min">1 Minute (Elevator Pitch)</option>
+                                <option value="3min" selected>3 Minutes (Standard)</option>
+                                <option value="5min">5 Minutes (Detailed)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="generateDemoScriptBtn" style="width: auto;">
+                            <i class="fas fa-sparkles"></i> Generate Script
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card hidden" id="demoScriptOutput">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-scroll" style="margin-right: 8px;"></i> Your Pitch Script</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="demoScriptContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translate Page -->
+            <div id="translatePage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Multi-Language Translator</h1>
+                    <p class="page-subtitle">Translate your applications to different languages with cultural adaptation</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-language" style="margin-right: 8px;"></i> Translate Content</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Content to Translate</label>
+                            <textarea id="translateContent" rows="6" placeholder="Paste your application content here..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Language</label>
+                            <select id="translateLanguage" class="form-control">
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="pt">Portuguese</option>
+                                <option value="zh">Chinese (Simplified)</option>
+                                <option value="ja">Japanese</option>
+                                <option value="ko">Korean</option>
+                                <option value="ar">Arabic</option>
+                                <option value="hi">Hindi</option>
+                                <option value="ru">Russian</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="translateBtn" style="width: auto;">
+                            <i class="fas fa-globe"></i> Translate
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card hidden" id="translateOutput">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-file-alt" style="margin-right: 8px;"></i> Translation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="translateResult" style="white-space: pre-wrap;"></div>
+                        <button class="btn btn-secondary" style="margin-top: 16px; width: auto;" onclick="copyTranslation()">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Matching Page -->
+            <div id="team-matchingPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Team Matching</h1>
+                    <p class="page-subtitle">Find the perfect teammates for your next hackathon</p>
+                </div>
+                
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="activeRequestsCount">0</div>
+                        <div class="stat-label">Active Requests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-handshake"></i></div>
+                        <div class="stat-value" id="matchesCount">0</div>
+                        <div class="stat-label">Potential Matches</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-plus" style="margin-right: 8px;"></i> Create Team Request</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="teamHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Skills You Offer</label>
+                            <input type="text" id="skillsOffered" placeholder="e.g., React, Python, UI/UX Design">
+                        </div>
+                        <div class="form-group">
+                            <label>Skills You Need</label>
+                            <input type="text" id="skillsNeeded" placeholder="e.g., Backend, ML, Mobile Development">
+                        </div>
+                        <div class="form-group">
+                            <label>Team Size Preference</label>
+                            <select id="teamSize" class="form-control">
+                                <option value="2">2 members</option>
+                                <option value="3" selected>3 members</option>
+                                <option value="4">4 members</option>
+                                <option value="5">5+ members</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Method</label>
+                            <input type="text" id="contactInfo" placeholder="Discord/Telegram/Email">
+                        </div>
+                        <button class="btn btn-primary" id="createTeamRequestBtn" style="width: auto;">
+                            <i class="fas fa-paper-plane"></i> Post Request
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-search" style="margin-right: 8px;"></i> Find Teammates</h3>
+                        <button class="btn btn-secondary" id="findMatchesBtn" style="width: auto;">
+                            <i class="fas fa-magic"></i> Find Matches
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="teamMatchesList">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <h3>No matches yet</h3>
+                                <p>Create a team request and click "Find Matches" to discover teammates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Winning Patterns Page -->
+            <div id="winning-patternsPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Winning Patterns Analyzer</h1>
+                    <p class="page-subtitle">Learn from past hackathon winners to increase your chances</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-search" style="margin-right: 8px;"></i> Analyze Winning Projects</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="patternsHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon to analyze...</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="analyzeWinnersBtn" style="width: auto;">
+                            <i class="fas fa-chart-line"></i> Analyze Winners
+                        </button>
+                        <button class="btn btn-secondary" id="scrapeWinnersBtn" style="width: auto; margin-left: 8px;">
+                            <i class="fas fa-download"></i> Scrape New Winners
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card hidden" id="patternsOutput">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-trophy" style="margin-right: 8px;"></i> Pattern Analysis</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="patternsContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Prediction Page -->
+            <div id="success-predictionPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Success Predictor</h1>
+                    <p class="page-subtitle">AI-powered prediction of your acceptance and winning chances</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-crystal-ball" style="margin-right: 8px;"></i> Predict Success</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="predictionHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon...</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="predictSuccessBtn" style="width: auto;">
+                            <i class="fas fa-magic"></i> Predict My Chances
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card hidden" id="predictionOutput">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-pie" style="margin-right: 8px;"></i> Prediction Results</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="predictionContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Calculator Page -->
+            <div id="roi-calculatorPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">ROI Calculator</h1>
+                    <p class="page-subtitle">Calculate the expected value of participating in hackathons</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calculator" style="margin-right: 8px;"></i> Calculate ROI</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="roiHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Hours</label>
+                            <input type="number" id="roiHours" value="48" placeholder="Hours you'll spend">
+                        </div>
+                        <div class="form-group">
+                            <label>Your Hourly Rate ($)</label>
+                            <input type="number" id="roiHourlyRate" value="50" placeholder="Your hourly rate">
+                        </div>
+                        <button class="btn btn-primary" id="calculateRoiBtn" style="width: auto;">
+                            <i class="fas fa-calculator"></i> Calculate ROI
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card hidden" id="roiOutput">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-bar" style="margin-right: 8px;"></i> ROI Analysis</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="roiContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sponsors Page -->
+            <div id="sponsorsPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Sponsor Connections</h1>
+                    <p class="page-subtitle">Leverage sponsor technologies for better chances of winning</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-building" style="margin-right: 8px;"></i> Major Sponsors</h3>
+                        <button class="btn btn-secondary" id="loadSponsorsBtn" style="width: auto;">
+                            <i class="fas fa-sync"></i> Load Sponsors
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="sponsorsList" class="stats-grid">
+                            <div class="empty-state">
+                                <i class="fas fa-building"></i>
+                                <h3>Loading sponsors...</h3>
+                                <p>Click "Load Sponsors" to see available sponsor technologies</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-lightbulb" style="margin-right: 8px;"></i> AI Integration Suggestions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Select Hackathon</label>
+                            <select id="sponsorHackathonSelect" class="form-control">
+                                <option value="">Select a hackathon...</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="getSponsorSuggestionsBtn" style="width: auto;">
+                            <i class="fas fa-magic"></i> Get Suggestions
+                        </button>
+                        <div id="sponsorSuggestionsOutput" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Page -->
+            <div id="calendarPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Calendar Sync</h1>
+                    <p class="page-subtitle">Sync hackathon deadlines with your calendar</p>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-calendar-alt" style="margin-right: 8px;"></i> Calendar Integration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="connectGoogleCalBtn" style="width: auto;">
+                                <i class="fab fa-google"></i> Connect Google Calendar
+                            </button>
+                            <button class="btn btn-secondary" id="exportIcsBtn" style="width: auto;">
+                                <i class="fas fa-download"></i> Export ICS File
+                            </button>
+                        </div>
+                        <p style="margin-top: 16px; color: var(--text-muted);">
+                            Sync your hackathon deadlines and reminders with Google Calendar or download an ICS file for other calendar apps.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-clock" style="margin-right: 8px;"></i> Upcoming Deadlines</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="upcomingDeadlinesList">
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-check"></i>
+                                <h3>No upcoming deadlines</h3>
+                                <p>Add hackathons to see their deadlines here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post-Hackathon Page -->
+            <div id="post-hackathonPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Portfolio & Project Tracker</h1>
+                    <p class="page-subtitle">Track your hackathon projects and build your portfolio</p>
+                </div>
+                
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-code"></i></div>
+                        <div class="stat-value" id="totalProjectsCount">0</div>
+                        <div class="stat-label">Total Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-trophy"></i></div>
+                        <div class="stat-value" id="winsCount">0</div>
+                        <div class="stat-label">Wins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow"><i class="fas fa-star"></i></div>
+                        <div class="stat-value" id="totalStarsCount">0</div>
+                        <div class="stat-label">GitHub Stars</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-plus" style="margin-right: 8px;"></i> Add Project</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Project Name</label>
+                            <input type="text" id="projectName" placeholder="Your project name">
+                        </div>
+                        <div class="form-group">
+                            <label>Hackathon</label>
+                            <select id="projectHackathonSelect" class="form-control">
+                                <option value="">Select hackathon...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>GitHub URL</label>
+                            <input type="text" id="projectGithub" placeholder="https://github.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label>Demo URL (optional)</label>
+                            <input type="text" id="projectDemo" placeholder="https://...">
+                        </div>
+                        <button class="btn btn-primary" id="addProjectBtn" style="width: auto;">
+                            <i class="fas fa-plus"></i> Add Project
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-folder" style="margin-right: 8px;"></i> Your Projects</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="projectsList">
+                            <div class="empty-state">
+                                <i class="fas fa-rocket"></i>
+                                <h3>No projects yet</h3>
+                                <p>Add your hackathon projects to track them</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Page -->
+            <div id="adminPage" class="page hidden">
+                <div class="page-header">
+                    <h1 class="page-title">Admin Dashboard</h1>
+                    <p class="page-subtitle">System administration and analytics</p>
+                </div>
+                
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="adminTotalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green"><i class="fas fa-trophy"></i></div>
+                        <div class="stat-value" id="adminTotalHackathons">0</div>
+                        <div class="stat-label">Total Hackathons</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow"><i class="fas fa-paper-plane"></i></div>
+                        <div class="stat-value" id="adminTotalApplications">0</div>
+                        <div class="stat-label">Applications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon red"><i class="fas fa-bolt"></i></div>
+                        <div class="stat-value" id="adminActiveUsers">0</div>
+                        <div class="stat-label">Active Today</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-cog" style="margin-right: 8px;"></i> Admin Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="refreshStatsBtn" style="width: auto;">
+                                <i class="fas fa-sync"></i> Refresh Stats
+                            </button>
+                            <button class="btn btn-secondary" id="viewUsersBtn" style="width: auto;">
+                                <i class="fas fa-users"></i> Manage Users
+                            </button>
+                            <button class="btn btn-secondary" id="viewFlagsBtn" style="width: auto;">
+                                <i class="fas fa-flag"></i> Feature Flags
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-chart-line" style="margin-right: 8px;"></i> System Stats</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="adminStatsContent">
+                            <p style="color: var(--text-muted);">Click "Refresh Stats" to load system statistics</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3248,11 +3789,616 @@ ${generatedIdea.motivation || 'I am passionate about building innovative solutio
                     const data = await res.json();
                     currentUser = data;
                     showApp();
+                    checkAdminStatus();
                 }
             } catch (err) {
                 console.log('Not authenticated');
             }
         }
+
+        // Check if user is admin
+        async function checkAdminStatus() {
+            try {
+                const res = await fetch('/api/admin/check');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.is_admin) {
+                        document.getElementById('adminNavItem').style.display = 'flex';
+                    }
+                }
+            } catch (err) {
+                console.log('Admin check failed');
+            }
+        }
+
+        // Populate new page selects
+        function populateNewPageSelects() {
+            const selects = [
+                'demoHackathonSelect', 'teamHackathonSelect', 'patternsHackathonSelect',
+                'predictionHackathonSelect', 'roiHackathonSelect', 'sponsorHackathonSelect',
+                'projectHackathonSelect'
+            ];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Select a hackathon...</option>';
+                    hackathons.forEach(h => {
+                        const option = document.createElement('option');
+                        option.value = h.id;
+                        option.textContent = h.name;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Call this after hackathons load
+        const originalLoadHackathons = loadHackathons;
+        loadHackathons = async function() {
+            await originalLoadHackathons();
+            populateNewPageSelects();
+        };
+
+        // Demo Script Generator
+        document.getElementById('generateDemoScriptBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('demoHackathonSelect').value;
+            const projectName = document.getElementById('demoProjectName').value;
+            const description = document.getElementById('demoProjectDesc').value;
+            const duration = document.getElementById('demoScriptLength').value;
+            
+            if (!projectName) {
+                showToast('Please enter a project name', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('generateDemoScriptBtn');
+            btn.innerHTML = '<div class="spinner"></div> Generating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/demo-script/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hackathon_id: hackathonId,
+                        project_name: projectName,
+                        project_description: description,
+                        duration: duration
+                    })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    const script = data.script;
+                    let content = `<h4 style="color: var(--primary);">${script.hook || 'Opening Hook'}</h4>`;
+                    content += `<p><strong>Problem:</strong> ${script.problem_statement || ''}</p>`;
+                    content += `<p><strong>Solution:</strong> ${script.solution_description || ''}</p>`;
+                    if (script.demo_points) {
+                        content += `<h4 style="margin-top: 16px;">Demo Points:</h4><ul>`;
+                        script.demo_points.forEach(p => content += `<li>${p}</li>`);
+                        content += `</ul>`;
+                    }
+                    content += `<p><strong>Closing:</strong> ${script.closing || ''}</p>`;
+                    content += `<p style="color: var(--text-muted); margin-top: 16px;"><i class="fas fa-clock"></i> Estimated: ${script.estimated_duration || duration}</p>`;
+                    
+                    document.getElementById('demoScriptContent').innerHTML = content;
+                    document.getElementById('demoScriptOutput').classList.remove('hidden');
+                    showToast('Script generated!', 'success');
+                } else {
+                    showToast(data.error || 'Generation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate Script';
+                btn.disabled = false;
+            }
+        });
+
+        // Translator
+        document.getElementById('translateBtn')?.addEventListener('click', async () => {
+            const content = document.getElementById('translateContent').value;
+            const language = document.getElementById('translateLanguage').value;
+            
+            if (!content) {
+                showToast('Please enter content to translate', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('translateBtn');
+            btn.innerHTML = '<div class="spinner"></div> Translating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/translate/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        target_language: language
+                    })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('translateResult').textContent = data.translated_content;
+                    document.getElementById('translateOutput').classList.remove('hidden');
+                    showToast('Translation complete!', 'success');
+                } else {
+                    showToast(data.error || 'Translation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-globe"></i> Translate';
+                btn.disabled = false;
+            }
+        });
+
+        function copyTranslation() {
+            const text = document.getElementById('translateResult').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!', 'success');
+            });
+        }
+
+        // Team Matching
+        document.getElementById('createTeamRequestBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('teamHackathonSelect').value;
+            const skillsOffered = document.getElementById('skillsOffered').value;
+            const skillsNeeded = document.getElementById('skillsNeeded').value;
+            const teamSize = document.getElementById('teamSize').value;
+            const contactInfo = document.getElementById('contactInfo').value;
+            
+            if (!skillsOffered || !skillsNeeded) {
+                showToast('Please fill in skills', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/team-matching/requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hackathon_id: hackathonId,
+                        skills_offered: skillsOffered.split(',').map(s => s.trim()),
+                        skills_needed: skillsNeeded.split(',').map(s => s.trim()),
+                        preferred_team_size: parseInt(teamSize),
+                        contact_info: contactInfo
+                    })
+                });
+                
+                if (res.ok) {
+                    showToast('Team request created!', 'success');
+                    document.getElementById('skillsOffered').value = '';
+                    document.getElementById('skillsNeeded').value = '';
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to create request', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        document.getElementById('findMatchesBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('teamHackathonSelect').value;
+            
+            try {
+                const res = await fetch(`/api/team-matching/find-matches${hackathonId ? '?hackathon_id=' + hackathonId : ''}`);
+                const data = await res.json();
+                
+                if (res.ok && data.matches && data.matches.length > 0) {
+                    let html = '';
+                    data.matches.forEach(match => {
+                        html += `
+                            <div class="stat-card" style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>${match.user_name || 'User'}</strong>
+                                        <p style="color: var(--text-muted); font-size: 12px;">
+                                            Offers: ${(match.skills_offered || []).join(', ')}
+                                        </p>
+                                        <p style="color: var(--text-muted); font-size: 12px;">
+                                            Needs: ${(match.skills_needed || []).join(', ')}
+                                        </p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <span class="badge" style="background: var(--success); color: white; padding: 4px 8px; border-radius: 4px;">
+                                            ${match.compatibility_score || 0}% Match
+                                        </span>
+                                        ${match.contact_info ? `<p style="font-size: 12px; margin-top: 4px;">${match.contact_info}</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('teamMatchesList').innerHTML = html;
+                    document.getElementById('matchesCount').textContent = data.matches.length;
+                    showToast(`Found ${data.matches.length} potential matches!`, 'success');
+                } else {
+                    document.getElementById('teamMatchesList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h3>No matches found</h3>
+                            <p>Try adjusting your skills or creating a new request</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        // Success Prediction
+        document.getElementById('predictSuccessBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('predictionHackathonSelect').value;
+            
+            if (!hackathonId) {
+                showToast('Please select a hackathon', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('predictSuccessBtn');
+            btn.innerHTML = '<div class="spinner"></div> Predicting...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/prediction/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: hackathonId })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    const pred = data.prediction;
+                    let html = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                                <div class="stat-value">${pred.acceptance_probability || 0}%</div>
+                                <div class="stat-label">Acceptance Chance</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon yellow"><i class="fas fa-trophy"></i></div>
+                                <div class="stat-value">${pred.win_probability || 0}%</div>
+                                <div class="stat-label">Win Probability</div>
+                            </div>
+                        </div>
+                        <h4 style="margin-top: 20px;">Factors Analysis:</h4>
+                        <ul style="color: var(--text-muted);">
+                    `;
+                    if (pred.factors) {
+                        Object.entries(pred.factors).forEach(([key, value]) => {
+                            html += `<li><strong>${key}:</strong> ${value}</li>`;
+                        });
+                    }
+                    html += `</ul>`;
+                    if (pred.recommendations) {
+                        html += `<h4 style="margin-top: 16px;">Recommendations:</h4><ul>`;
+                        pred.recommendations.forEach(r => html += `<li>${r}</li>`);
+                        html += `</ul>`;
+                    }
+                    
+                    document.getElementById('predictionContent').innerHTML = html;
+                    document.getElementById('predictionOutput').classList.remove('hidden');
+                    showToast('Prediction complete!', 'success');
+                } else {
+                    showToast(data.error || 'Prediction failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-magic"></i> Predict My Chances';
+                btn.disabled = false;
+            }
+        });
+
+        // ROI Calculator
+        document.getElementById('calculateRoiBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('roiHackathonSelect').value;
+            const hours = document.getElementById('roiHours').value;
+            const hourlyRate = document.getElementById('roiHourlyRate').value;
+            
+            if (!hackathonId) {
+                showToast('Please select a hackathon', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('calculateRoiBtn');
+            btn.innerHTML = '<div class="spinner"></div> Calculating...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/roi/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hackathon_id: hackathonId,
+                        estimated_hours: parseInt(hours),
+                        hourly_rate: parseFloat(hourlyRate)
+                    })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    const roi = data.calculation;
+                    let html = `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
+                                <div class="stat-value">$${(roi.expected_value || 0).toFixed(0)}</div>
+                                <div class="stat-label">Expected Value</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon purple"><i class="fas fa-clock"></i></div>
+                                <div class="stat-value">$${(roi.hourly_expected_value || 0).toFixed(2)}</div>
+                                <div class="stat-label">Hourly EV</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon yellow"><i class="fas fa-balance-scale"></i></div>
+                                <div class="stat-value">${(roi.roi_percentage || 0).toFixed(0)}%</div>
+                                <div class="stat-label">ROI</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <p><strong>Time Investment:</strong> ${roi.time_investment_hours || hours} hours</p>
+                            <p><strong>Opportunity Cost:</strong> $${(roi.opportunity_cost || 0).toFixed(0)}</p>
+                            <p><strong>Prize Pool:</strong> $${roi.total_prize_value || 'Unknown'}</p>
+                        </div>
+                    `;
+                    if (roi.recommendation) {
+                        html += `<p style="margin-top: 16px; padding: 12px; background: var(--primary-light); border-radius: 8px;">
+                            <strong>Recommendation:</strong> ${roi.recommendation}
+                        </p>`;
+                    }
+                    
+                    document.getElementById('roiContent').innerHTML = html;
+                    document.getElementById('roiOutput').classList.remove('hidden');
+                    showToast('ROI calculated!', 'success');
+                } else {
+                    showToast(data.error || 'Calculation failed', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-calculator"></i> Calculate ROI';
+                btn.disabled = false;
+            }
+        });
+
+        // Sponsors
+        document.getElementById('loadSponsorsBtn')?.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/sponsors');
+                const data = await res.json();
+                
+                if (res.ok && data.sponsors && data.sponsors.length > 0) {
+                    let html = '';
+                    data.sponsors.forEach(s => {
+                        html += `
+                            <div class="stat-card">
+                                <div class="stat-icon purple"><i class="fas fa-building"></i></div>
+                                <div class="stat-value" style="font-size: 18px;">${s.name}</div>
+                                <div class="stat-label">${s.category || 'Technology'}</div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                                    ${(s.technologies || []).slice(0, 3).join(', ')}
+                                </p>
+                                ${s.free_credits ? `<span class="badge" style="background: var(--success); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Free Credits</span>` : ''}
+                            </div>
+                        `;
+                    });
+                    document.getElementById('sponsorsList').innerHTML = html;
+                    showToast(`Loaded ${data.sponsors.length} sponsors`, 'success');
+                } else {
+                    showToast('No sponsors found', 'info');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        document.getElementById('getSponsorSuggestionsBtn')?.addEventListener('click', async () => {
+            const hackathonId = document.getElementById('sponsorHackathonSelect').value;
+            
+            if (!hackathonId) {
+                showToast('Please select a hackathon', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('getSponsorSuggestionsBtn');
+            btn.innerHTML = '<div class="spinner"></div> Getting suggestions...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/sponsors/suggest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: hackathonId })
+                });
+                
+                const data = await res.json();
+                if (res.ok && data.suggestions) {
+                    let html = '<div class="card-body">';
+                    data.suggestions.forEach(s => {
+                        html += `
+                            <div style="padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 12px;">
+                                <strong>${s.sponsor_name}</strong>
+                                <p style="color: var(--text-muted); margin: 8px 0;">${s.integration_idea}</p>
+                                <small style="color: var(--success);">Impact: ${s.impact_score || 'High'}</small>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    document.getElementById('sponsorSuggestionsOutput').innerHTML = html;
+                    showToast('Suggestions generated!', 'success');
+                } else {
+                    showToast(data.error || 'No suggestions found', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-magic"></i> Get Suggestions';
+                btn.disabled = false;
+            }
+        });
+
+        // Calendar
+        document.getElementById('exportIcsBtn')?.addEventListener('click', async () => {
+            try {
+                window.location.href = '/api/calendar/export-ics';
+                showToast('Downloading calendar...', 'success');
+            } catch (err) {
+                showToast('Export failed', 'error');
+            }
+        });
+
+        document.getElementById('connectGoogleCalBtn')?.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/calendar/google/auth-url');
+                const data = await res.json();
+                if (res.ok && data.auth_url) {
+                    window.open(data.auth_url, '_blank');
+                } else {
+                    showToast('Google Calendar not configured', 'info');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        // Post-Hackathon / Portfolio
+        document.getElementById('addProjectBtn')?.addEventListener('click', async () => {
+            const name = document.getElementById('projectName').value;
+            const hackathonId = document.getElementById('projectHackathonSelect').value;
+            const github = document.getElementById('projectGithub').value;
+            const demo = document.getElementById('projectDemo').value;
+            
+            if (!name) {
+                showToast('Please enter project name', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/post-hackathon/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_name: name,
+                        hackathon_id: hackathonId,
+                        github_url: github,
+                        demo_url: demo
+                    })
+                });
+                
+                if (res.ok) {
+                    showToast('Project added!', 'success');
+                    document.getElementById('projectName').value = '';
+                    document.getElementById('projectGithub').value = '';
+                    document.getElementById('projectDemo').value = '';
+                    loadProjects();
+                } else {
+                    const data = await res.json();
+                    showToast(data.error || 'Failed to add project', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            }
+        });
+
+        async function loadProjects() {
+            try {
+                const res = await fetch('/api/post-hackathon/projects');
+                const data = await res.json();
+                
+                if (res.ok && data.projects && data.projects.length > 0) {
+                    let html = '';
+                    let totalStars = 0;
+                    let wins = 0;
+                    
+                    data.projects.forEach(p => {
+                        totalStars += p.github_stars || 0;
+                        if (p.won_prize) wins++;
+                        
+                        html += `
+                            <div style="padding: 16px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <strong>${p.project_name}</strong>
+                                        <p style="color: var(--text-muted); font-size: 12px;">${p.hackathon_name || 'Unknown Hackathon'}</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        ${p.github_stars ? `<span style="color: var(--warning);"><i class="fas fa-star"></i> ${p.github_stars}</span>` : ''}
+                                        ${p.won_prize ? `<span class="badge" style="background: var(--success); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;"><i class="fas fa-trophy"></i></span>` : ''}
+                                    </div>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    ${p.github_url ? `<a href="${p.github_url}" target="_blank" style="color: var(--primary); font-size: 12px; margin-right: 12px;"><i class="fab fa-github"></i> GitHub</a>` : ''}
+                                    ${p.demo_url ? `<a href="${p.demo_url}" target="_blank" style="color: var(--primary); font-size: 12px;"><i class="fas fa-external-link-alt"></i> Demo</a>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('projectsList').innerHTML = html;
+                    document.getElementById('totalProjectsCount').textContent = data.projects.length;
+                    document.getElementById('winsCount').textContent = wins;
+                    document.getElementById('totalStarsCount').textContent = totalStars;
+                }
+            } catch (err) {
+                console.error('Error loading projects:', err);
+            }
+        }
+
+        // Admin Functions
+        document.getElementById('refreshStatsBtn')?.addEventListener('click', async () => {
+            const btn = document.getElementById('refreshStatsBtn');
+            btn.innerHTML = '<div class="spinner"></div> Loading...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                
+                if (res.ok && data.stats) {
+                    const stats = data.stats;
+                    document.getElementById('adminTotalUsers').textContent = stats.total_users || 0;
+                    document.getElementById('adminTotalHackathons').textContent = stats.total_hackathons || 0;
+                    document.getElementById('adminTotalApplications').textContent = stats.total_applications || 0;
+                    document.getElementById('adminActiveUsers').textContent = stats.active_users_24h || 0;
+                    
+                    let html = `
+                        <h4>Feature Usage</h4>
+                        <ul style="color: var(--text-muted);">
+                            <li>Team Matching Requests: ${stats.team_matching_requests || 0}</li>
+                            <li>ROI Calculations: ${stats.roi_calculations || 0}</li>
+                            <li>Demo Scripts Generated: ${stats.demo_scripts_generated || 0}</li>
+                            <li>Translations: ${stats.translations_generated || 0}</li>
+                        </ul>
+                        <h4 style="margin-top: 16px;">Hackathons by Source</h4>
+                        <ul style="color: var(--text-muted);">
+                    `;
+                    if (stats.hackathons_by_source) {
+                        Object.entries(stats.hackathons_by_source).forEach(([source, count]) => {
+                            html += `<li>${source}: ${count}</li>`;
+                        });
+                    }
+                    html += `</ul>`;
+                    
+                    document.getElementById('adminStatsContent').innerHTML = html;
+                    showToast('Stats refreshed!', 'success');
+                } else {
+                    showToast(data.error || 'Failed to load stats', 'error');
+                }
+            } catch (err) {
+                showToast('Connection error', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sync"></i> Refresh Stats';
+                btn.disabled = false;
+            }
+        });
 
         checkAuth();
     </script>
