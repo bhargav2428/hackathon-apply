@@ -515,6 +515,40 @@
             border-color: var(--success);
         }
 
+        /* Deadline urgency styles */
+        .hackathon-card.urgent {
+            border-color: #e74c3c;
+            animation: pulse-urgent 2s infinite;
+        }
+        
+        .hackathon-card.soon {
+            border-color: #f39c12;
+        }
+        
+        .hackathon-card.expired {
+            opacity: 0.6;
+            border-color: #7f8c8d;
+        }
+        
+        @keyframes pulse-urgent {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
+        }
+        
+        .deadline-urgent {
+            color: #e74c3c !important;
+            font-weight: 600;
+        }
+        
+        .deadline-soon {
+            color: #f39c12 !important;
+        }
+        
+        .deadline-expired {
+            color: #7f8c8d !important;
+            text-decoration: line-through;
+        }
+
         .hackathon-banner {
             height: 120px;
             background: var(--gradient-1);
@@ -1084,14 +1118,34 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Application Steps Guide -->
+                <div class="apply-steps" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 16px; margin-top: 16px;">
+                    <h4 style="margin: 0 0 12px 0; color: var(--primary); font-size: 14px;">
+                        <i class="fas fa-list-ol"></i> How to Apply:
+                    </h4>
+                    <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+                        <li>Click "Generate AI Content" to create your project idea & motivation</li>
+                        <li>Click "Copy to Clipboard" to copy the generated content</li>
+                        <li>Click "Open Hackathon Website" to go to the registration page</li>
+                        <li>Paste your content into the application form</li>
+                        <li>Come back and click "Mark as Applied" to track it</li>
+                    </ol>
+                </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="flex-wrap: wrap; gap: 8px;">
                 <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+                <button class="btn btn-info" id="copyContentBtn" onclick="copyApplicationContent()" style="display: none; background: #3498db;">
+                    <i class="fas fa-copy"></i> Copy Content
+                </button>
                 <button class="btn btn-success" id="directApplyBtn" onclick="directApplyNow()" style="display: none;">
-                    <i class="fas fa-external-link-alt"></i> Apply on Website
+                    <i class="fas fa-external-link-alt"></i> Open Website
                 </button>
                 <button class="btn btn-primary" id="confirmApplyBtn" onclick="confirmApply()">
-                    <i class="fas fa-rocket"></i> Generate & Apply Now
+                    <i class="fas fa-magic"></i> Generate AI Content
+                </button>
+                <button class="btn btn-success" id="markAppliedBtn" onclick="markAsApplied()" style="display: none;">
+                    <i class="fas fa-check"></i> Mark as Applied
                 </button>
             </div>
         </div>
@@ -1283,16 +1337,56 @@
                     <p class="page-subtitle">Find the perfect hackathon to showcase your skills</p>
                 </div>
 
-                <div class="search-bar" style="display: flex; gap: 12px; align-items: center;">
-                    <div style="flex: 1; position: relative;">
-                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-                        <input type="text" id="hackathonSearch" placeholder="Search hackathons..." style="padding-left: 44px; width: 100%;">
+                <div class="hackathon-search-container" style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
+                    <div style="flex: 1; position: relative; min-width: 200px;">
+                        <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888; z-index: 1; pointer-events: none;"></i>
+                        <input type="text" id="hackathonSearch" placeholder="Search hackathons..." style="padding: 14px 16px 14px 44px; width: 100%; background: #1a1a2e; border: 2px solid #333; border-radius: 10px; color: #fff; font-size: 15px; box-sizing: border-box; outline: none;">
                     </div>
                     <button class="btn btn-primary" id="aiSearchBtn" style="white-space: nowrap;">
                         <i class="fas fa-magic"></i> AI Search
                     </button>
                     <button class="btn btn-secondary" id="refreshHackathonsBtn" style="white-space: nowrap;">
                         <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-success" id="seedHackathonsBtn" style="white-space: nowrap; background: #27ae60;">
+                        <i class="fas fa-plus"></i> Add Sample
+                    </button>
+                </div>
+
+                <!-- Filters Section -->
+                <div class="hackathon-filters" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="color: var(--text-muted); font-size: 13px;">Source:</label>
+                        <select id="sourceFilter" style="padding: 8px 12px; background: #1a1a2e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 13px;">
+                            <option value="all">All Sources</option>
+                            <option value="devpost">Devpost</option>
+                            <option value="mlh">MLH</option>
+                            <option value="unstop">Unstop</option>
+                            <option value="hackerearth">HackerEarth</option>
+                            <option value="hackathon.com">Hackathon.com</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="color: var(--text-muted); font-size: 13px;">Status:</label>
+                        <select id="applicationStatusFilter" style="padding: 8px 12px; background: #1a1a2e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 13px;">
+                            <option value="all">All</option>
+                            <option value="not-applied">Not Applied</option>
+                            <option value="applied">Applied</option>
+                            <option value="confirmed">Confirmed</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="color: var(--text-muted); font-size: 13px;">Deadline:</label>
+                        <select id="deadlineFilter" style="padding: 8px 12px; background: #1a1a2e; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 13px;">
+                            <option value="all">All Dates</option>
+                            <option value="ending-soon">Ending in 3 days</option>
+                            <option value="this-week">This Week</option>
+                            <option value="this-month">This Month</option>
+                            <option value="no-deadline">No Deadline</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" id="clearFiltersBtn" style="padding: 8px 16px; font-size: 13px;">
+                        <i class="fas fa-times"></i> Clear Filters
                     </button>
                 </div>
 
@@ -1738,6 +1832,173 @@
             showToast('Logged out successfully', 'info');
         });
 
+        // Hackathon Search
+        document.getElementById('hackathonSearch').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            renderHackathons(query);
+        });
+
+        // Filter change handlers
+        document.getElementById('sourceFilter').addEventListener('change', () => {
+            const query = document.getElementById('hackathonSearch').value.trim();
+            renderHackathons(query);
+        });
+        
+        document.getElementById('applicationStatusFilter').addEventListener('change', () => {
+            const query = document.getElementById('hackathonSearch').value.trim();
+            renderHackathons(query);
+        });
+        
+        document.getElementById('deadlineFilter').addEventListener('change', () => {
+            const query = document.getElementById('hackathonSearch').value.trim();
+            renderHackathons(query);
+        });
+        
+        document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+            clearAllFilters();
+        });
+        
+        // Clear all filters function
+        function clearAllFilters() {
+            document.getElementById('hackathonSearch').value = '';
+            document.getElementById('sourceFilter').value = 'all';
+            document.getElementById('applicationStatusFilter').value = 'all';
+            document.getElementById('deadlineFilter').value = 'all';
+            renderHackathons();
+        }
+
+        // AI Search Button - Fetches from ALL hackathon websites
+        document.getElementById('aiSearchBtn').addEventListener('click', async () => {
+            const query = document.getElementById('hackathonSearch').value.trim();
+            if (!query) {
+                showToast('Please enter a search term for AI search', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('aiSearchBtn');
+            btn.innerHTML = '<div class="spinner"></div> Fetching from all websites...';
+            btn.disabled = true;
+            
+            try {
+                // Fetch fresh hackathons from ALL websites (Devpost, MLH, Unstop, HackerEarth, Hackathon.com)
+                const fetchRes = await fetch('/api/hackathons/fetch-from-web', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ query: query })
+                });
+                
+                if (!fetchRes.ok) {
+                    throw new Error(`HTTP ${fetchRes.status}`);
+                }
+                const fetchData = await fetchRes.json();
+                
+                if (fetchData.hackathons_added > 0) {
+                    showToast(`Found ${fetchData.hackathons_added} new hackathons from web!`, 'success');
+                }
+                
+                // Reload hackathons from database
+                await loadHackathons();
+                
+                // Filter by search query
+                const matchedHackathons = hackathons.filter(h => {
+                    const text = `${h.name} ${h.description || ''} ${(h.tags || []).join(' ')} ${(h.themes || []).join(' ')} ${h.source || ''}`.toLowerCase();
+                    const queryWords = query.toLowerCase().split(' ');
+                    return queryWords.some(word => text.includes(word));
+                });
+                
+                // Sort by relevance (more matches = higher rank)
+                matchedHackathons.sort((a, b) => {
+                    const scoreA = query.toLowerCase().split(' ').filter(w => 
+                        `${a.name} ${a.description || ''}`.toLowerCase().includes(w)
+                    ).length;
+                    const scoreB = query.toLowerCase().split(' ').filter(w => 
+                        `${b.name} ${b.description || ''}`.toLowerCase().includes(w)
+                    ).length;
+                    return scoreB - scoreA;
+                });
+                
+                if (matchedHackathons.length > 0) {
+                    renderHackathons(query, matchedHackathons);
+                    showToast(`Found ${matchedHackathons.length} matching hackathons`, 'success');
+                } else {
+                    showToast('No hackathons match your search', 'info');
+                }
+            } catch (err) {
+                console.error('AI search error:', err);
+                showToast('AI search failed', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-magic"></i> AI Search';
+                btn.disabled = false;
+            }
+        });
+
+        // Refresh Hackathons Button - Fetches from ALL websites
+        document.getElementById('refreshHackathonsBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('refreshHackathonsBtn');
+            btn.innerHTML = '<div class="spinner"></div> Fetching from all websites...';
+            btn.disabled = true;
+            
+            try {
+                // Fetch fresh hackathons from ALL websites
+                const fetchRes = await fetch('/api/hackathons/fetch-from-web', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({})
+                });
+                
+                if (!fetchRes.ok) {
+                    throw new Error(`HTTP ${fetchRes.status}`);
+                }
+                const fetchData = await fetchRes.json();
+                
+                // Reload from database
+                await loadHackathons();
+                
+                const sources = fetchData.sources_checked || [];
+                showToast(`Refreshed from ${sources.length} sources! ${fetchData.hackathons_added} new hackathons added.`, 'success');
+            } catch (err) {
+                console.error('Refresh error:', err);
+                showToast('Failed to refresh', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                btn.disabled = false;
+            }
+        });
+
+        // Seed Sample Hackathons Button - Add sample hackathons
+        document.getElementById('seedHackathonsBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('seedHackathonsBtn');
+            btn.innerHTML = '<div class="spinner"></div> Adding...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/hackathons/seed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                
+                const data = await res.json();
+                
+                // Reload from database
+                await loadHackathons();
+                
+                showToast(data.message || `Added ${data.added} sample hackathons!`, 'success');
+            } catch (err) {
+                console.error('Seed error:', err);
+                showToast('Failed to add sample hackathons', 'error');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-plus"></i> Add Sample';
+                btn.disabled = false;
+            }
+        });
+
         // Load Dashboard
         async function loadDashboard() {
             try {
@@ -1772,33 +2033,142 @@
             return applications.find(app => app.hackathon_id === hackathonId);
         }
 
-        function renderHackathons() {
+        function renderHackathons(filterQuery = '', filteredList = null) {
             const container = document.getElementById('hackathonList');
             
-            if (hackathons.length === 0) {
+            // Get filter values
+            const sourceFilter = document.getElementById('sourceFilter')?.value || 'all';
+            const statusFilter = document.getElementById('applicationStatusFilter')?.value || 'all';
+            const deadlineFilter = document.getElementById('deadlineFilter')?.value || 'all';
+            
+            // Use filtered list if provided, otherwise filter from all hackathons
+            let displayHackathons = filteredList || [...hackathons];
+            
+            // Apply text filter if query provided
+            if (filterQuery && !filteredList) {
+                const query = filterQuery.toLowerCase();
+                displayHackathons = displayHackathons.filter(h => {
+                    const searchText = `${h.name} ${h.description || ''} ${(h.tags || []).join(' ')}`.toLowerCase();
+                    return searchText.includes(query);
+                });
+            }
+            
+            // Apply source filter
+            if (sourceFilter !== 'all') {
+                displayHackathons = displayHackathons.filter(h => 
+                    (h.source || '').toLowerCase() === sourceFilter.toLowerCase()
+                );
+            }
+            
+            // Apply application status filter
+            if (statusFilter !== 'all') {
+                displayHackathons = displayHackathons.filter(h => {
+                    const app = getApplicationForHackathon(h.id);
+                    if (statusFilter === 'not-applied') {
+                        return !app;
+                    } else if (statusFilter === 'applied') {
+                        return app && app.status === 'submitted';
+                    } else if (statusFilter === 'confirmed') {
+                        return app && app.external_submitted === true;
+                    }
+                    return true;
+                });
+            }
+            
+            // Apply deadline filter
+            const now = new Date();
+            if (deadlineFilter !== 'all') {
+                displayHackathons = displayHackathons.filter(h => {
+                    if (deadlineFilter === 'no-deadline') {
+                        return !h.deadline;
+                    }
+                    if (!h.deadline) return false;
+                    
+                    const deadline = new Date(h.deadline);
+                    const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (deadlineFilter === 'ending-soon') {
+                        return daysUntil >= 0 && daysUntil <= 3;
+                    } else if (deadlineFilter === 'this-week') {
+                        return daysUntil >= 0 && daysUntil <= 7;
+                    } else if (deadlineFilter === 'this-month') {
+                        return daysUntil >= 0 && daysUntil <= 30;
+                    }
+                    return true;
+                });
+            }
+            
+            // Sort by deadline (soonest first), then by name
+            displayHackathons.sort((a, b) => {
+                // Hackathons with deadlines come first
+                if (a.deadline && !b.deadline) return -1;
+                if (!a.deadline && b.deadline) return 1;
+                if (a.deadline && b.deadline) {
+                    return new Date(a.deadline) - new Date(b.deadline);
+                }
+                return a.name.localeCompare(b.name);
+            });
+            
+            // Update count with filter info
+            const filterInfo = [];
+            if (sourceFilter !== 'all') filterInfo.push(sourceFilter);
+            if (statusFilter !== 'all') filterInfo.push(statusFilter);
+            if (deadlineFilter !== 'all') filterInfo.push(deadlineFilter);
+            
+            let countText = `Showing ${displayHackathons.length} of ${hackathons.length} hackathons`;
+            if (filterInfo.length > 0) {
+                countText += ` (filtered by: ${filterInfo.join(', ')})`;
+            }
+            document.getElementById('hackathonCount').textContent = countText;
+            
+            if (displayHackathons.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: span 2;">
-                        <i class="fas fa-trophy"></i>
-                        <h3>No hackathons found</h3>
-                        <p>Check back later for new opportunities or add hackathons manually!</p>
-                        <button class="btn btn-primary" style="width: auto; margin-top: 16px;" onclick="showAddHackathonModal()">
-                            <i class="fas fa-plus"></i> Add Hackathon
+                        <i class="fas fa-search"></i>
+                        <h3>${filterQuery ? 'No matching hackathons' : 'No hackathons found'}</h3>
+                        <p>${filterQuery ? 'Try a different search term or adjust filters' : 'Try clicking "Add Sample" or "Refresh" to load hackathons'}</p>
+                        <button class="btn btn-secondary" style="width: auto; margin-top: 12px;" onclick="clearAllFilters()">
+                            <i class="fas fa-times"></i> Clear All Filters
                         </button>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = hackathons.map(h => {
+            container.innerHTML = displayHackathons.map(h => {
                 const existingApp = getApplicationForHackathon(h.id);
                 const isApplied = existingApp && existingApp.status === 'submitted';
                 const isConfirmed = existingApp && existingApp.external_submitted === true;
                 const isPending = existingApp && (existingApp.status === 'pending' || existingApp.status === 'auto_generated');
                 
+                // Calculate days until deadline
+                let deadlineInfo = '';
+                let deadlineClass = '';
+                if (h.deadline) {
+                    const deadline = new Date(h.deadline);
+                    const daysUntil = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                    if (daysUntil < 0) {
+                        deadlineInfo = 'Expired';
+                        deadlineClass = 'expired';
+                    } else if (daysUntil === 0) {
+                        deadlineInfo = 'Ends today!';
+                        deadlineClass = 'urgent';
+                    } else if (daysUntil <= 3) {
+                        deadlineInfo = `${daysUntil} day${daysUntil > 1 ? 's' : ''} left`;
+                        deadlineClass = 'urgent';
+                    } else if (daysUntil <= 7) {
+                        deadlineInfo = `${daysUntil} days left`;
+                        deadlineClass = 'soon';
+                    } else {
+                        deadlineInfo = deadline.toLocaleDateString();
+                    }
+                }
+                
                 return `
-                <div class="hackathon-card ${isApplied ? 'applied' : ''}">
+                <div class="hackathon-card ${isApplied ? 'applied' : ''} ${deadlineClass}">
                     <div class="hackathon-banner">
                         <span class="hackathon-badge">${h.is_active ? '🟢 Active' : '🔴 Closed'}</span>
+                        ${h.source ? `<span class="hackathon-badge" style="background: #444; font-size: 10px;">${h.source}</span>` : ''}
                         ${isConfirmed ? '<span class="hackathon-badge" style="background: var(--success);">✅ Confirmed</span>' : ''}
                         ${isApplied && !isConfirmed ? '<span class="hackathon-badge" style="background: #6366f1;">📝 Tracked</span>' : ''}
                         ${isPending ? '<span class="hackathon-badge" style="background: var(--warning);">⏳ Draft</span>' : ''}
@@ -1807,9 +2177,9 @@
                         <h3 class="hackathon-title">${h.name}</h3>
                         <p class="hackathon-desc">${h.description || 'No description available'}</p>
                         <div class="hackathon-meta">
-                            <div class="hackathon-meta-item">
+                            <div class="hackathon-meta-item ${deadlineClass ? 'deadline-' + deadlineClass : ''}">
                                 <i class="fas fa-calendar"></i>
-                                ${h.deadline ? new Date(h.deadline).toLocaleDateString() : 'No deadline'}
+                                ${deadlineInfo || 'No deadline'}
                             </div>
                             ${h.prize ? `<div class="hackathon-meta-item"><i class="fas fa-gift"></i> ${h.prize}</div>` : ''}
                         </div>
@@ -1938,6 +2308,25 @@
                 // Update submit button based on status
                 const submitBtn = document.getElementById('confirmApplyBtn');
                 if (existingApp.status === 'submitted') {
+                    // Hide generate button, show action buttons based on state
+                    submitBtn.style.display = 'none';
+                    
+                    // Show copy button if there's content
+                    if (existingApp.generated_project_idea) {
+                        try {
+                            generatedIdea = JSON.parse(existingApp.generated_project_idea);
+                        } catch(e) {
+                            generatedIdea = existingApp.generated_project_idea;
+                        }
+                        document.getElementById('copyContentBtn').style.display = 'inline-flex';
+                    } else {
+                        document.getElementById('copyContentBtn').style.display = 'none';
+                    }
+                    
+                    // Show open website button
+                    document.getElementById('directApplyBtn').style.display = 'inline-flex';
+                    document.getElementById('markAppliedBtn').style.display = 'none'; // Already applied
+                    
                     if (isExternalConfirmed) {
                         submitBtn.innerHTML = '<i class="fas fa-check-double"></i> Confirmed!';
                         submitBtn.disabled = true;
@@ -1953,9 +2342,15 @@
                 } else {
                     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Application';
                     submitBtn.disabled = false;
+                    submitBtn.style.display = 'inline-flex';
                     submitBtn.classList.remove('btn-success');
                     submitBtn.classList.add('btn-primary');
                     submitBtn.onclick = () => submitFromModal(existingApp.id);
+                    
+                    // Hide new buttons for draft applications
+                    document.getElementById('copyContentBtn').style.display = 'none';
+                    document.getElementById('directApplyBtn').style.display = 'none';
+                    document.getElementById('markAppliedBtn').style.display = 'none';
                 }
             } else {
                 // Reset preview for new application
@@ -1969,11 +2364,17 @@
                 
                 // Reset submit button
                 const submitBtn = document.getElementById('confirmApplyBtn');
-                submitBtn.innerHTML = '<i class="fas fa-check"></i> Confirm & Create Application';
+                submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Content';
                 submitBtn.disabled = false;
+                submitBtn.style.display = 'inline-flex';
                 submitBtn.classList.remove('btn-success');
                 submitBtn.classList.add('btn-primary');
                 submitBtn.onclick = confirmApply;
+                
+                // Hide action buttons (shown after generating content)
+                document.getElementById('copyContentBtn').style.display = 'none';
+                document.getElementById('directApplyBtn').style.display = 'none';
+                document.getElementById('markAppliedBtn').style.display = 'none';
             }
             
             document.getElementById('applyModal').classList.add('active');
@@ -2092,55 +2493,128 @@
             }
         }
 
-        // Confirm Apply - Generate AI content, create application, and open website
+        // Confirm Apply - Generate AI content and show copy/apply options
         async function confirmApply() {
             if (!currentApplyHackathon) return;
             
             const btn = document.getElementById('confirmApplyBtn');
             const previewEl = document.getElementById('modalProjectIdea');
             
-            // Step 1: Generate AI idea if not already done
-            if (!generatedIdea) {
-                btn.innerHTML = '<div class="spinner"></div> Generating AI idea...';
-                btn.disabled = true;
+            // Step 1: Generate AI idea
+            btn.innerHTML = '<div class="spinner"></div> Generating AI content...';
+            btn.disabled = true;
+            
+            previewEl.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 12px; color: var(--text-muted);">🤖 AI is generating your project idea...</p>
+                </div>
+            `;
+            
+            try {
+                const ideaRes = await fetch('/api/ai/generate/idea', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hackathon_id: currentApplyHackathon.id })
+                });
                 
-                previewEl.innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <div class="loading-spinner"></div>
-                        <p style="margin-top: 12px; color: var(--text-muted);">🤖 AI is generating your project idea...</p>
-                    </div>
-                `;
-                
-                try {
-                    const ideaRes = await fetch('/api/ai/generate/idea', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ hackathon_id: currentApplyHackathon.id })
-                    });
+                const ideaData = await ideaRes.json();
+                if (ideaRes.ok && ideaData.idea) {
+                    generatedIdea = ideaData.idea;
                     
-                    const ideaData = await ideaRes.json();
-                    if (ideaRes.ok && ideaData.idea) {
-                        generatedIdea = ideaData.idea;
-                        // Show generated idea briefly
-                        let ideaHTML = '';
-                        if (typeof ideaData.idea === 'object') {
-                            ideaHTML = `
-                                <div class="ai-preview-title"><i class="fas fa-lightbulb"></i> ${ideaData.idea.project_name || 'Project Idea'}</div>
-                                <p><strong>Problem:</strong> ${ideaData.idea.problem_statement || 'N/A'}</p>
-                                <p><strong>Solution:</strong> ${ideaData.idea.solution || 'N/A'}</p>
-                            `;
-                        } else {
-                            ideaHTML = `<div class="ai-preview-title"><i class="fas fa-lightbulb"></i> Generated Idea</div><p>${ideaData.idea}</p>`;
-                        }
-                        previewEl.innerHTML = ideaHTML;
+                    // Show generated idea with full details
+                    let ideaHTML = '';
+                    if (typeof ideaData.idea === 'object') {
+                        ideaHTML = `
+                            <div class="ai-preview-title"><i class="fas fa-lightbulb"></i> ${ideaData.idea.project_name || 'Project Idea'}</div>
+                            <p><strong>Problem:</strong> ${ideaData.idea.problem_statement || 'N/A'}</p>
+                            <p><strong>Solution:</strong> ${ideaData.idea.solution || 'N/A'}</p>
+                            <p><strong>Tech Stack:</strong> ${Array.isArray(ideaData.idea.tech_stack) ? ideaData.idea.tech_stack.join(', ') : (ideaData.idea.tech_stack || 'N/A')}</p>
+                            <p><strong>Motivation:</strong> ${ideaData.idea.motivation || 'N/A'}</p>
+                        `;
+                    } else {
+                        ideaHTML = `<div class="ai-preview-title"><i class="fas fa-lightbulb"></i> Generated Idea</div><p>${ideaData.idea}</p>`;
                     }
-                } catch (err) {
-                    console.error('Error generating idea:', err);
+                    previewEl.innerHTML = ideaHTML;
+                    
+                    // Show all the action buttons
+                    document.getElementById('copyContentBtn').style.display = 'inline-flex';
+                    document.getElementById('directApplyBtn').style.display = 'inline-flex';
+                    document.getElementById('markAppliedBtn').style.display = 'inline-flex';
+                    btn.style.display = 'none'; // Hide generate button
+                    
+                    showToast('✅ AI content generated! Copy it and apply on the website.', 'success');
+                } else {
+                    showToast(ideaData.error || 'Failed to generate idea', 'error');
+                    btn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Content';
+                    btn.disabled = false;
                 }
+            } catch (err) {
+                console.error('Error generating idea:', err);
+                showToast('Connection error', 'error');
+                btn.innerHTML = '<i class="fas fa-magic"></i> Generate AI Content';
+                btn.disabled = false;
+            }
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('applyModal').addEventListener('click', (e) => {
+            if (e.target.id === 'applyModal') closeApplyModal();
+        });
+
+        // Copy generated application content to clipboard
+        async function copyApplicationContent() {
+            if (!generatedIdea) {
+                showToast('Please generate AI content first', 'error');
+                return;
             }
             
-            // Step 2: Create application
-            btn.innerHTML = '<div class="spinner"></div> Creating application...';
+            let textToCopy = '';
+            
+            if (typeof generatedIdea === 'object') {
+                textToCopy = `Project Name: ${generatedIdea.project_name || 'My Hackathon Project'}
+
+Problem Statement:
+${generatedIdea.problem_statement || 'N/A'}
+
+Solution:
+${generatedIdea.solution || 'N/A'}
+
+Tech Stack:
+${Array.isArray(generatedIdea.tech_stack) ? generatedIdea.tech_stack.join(', ') : (generatedIdea.tech_stack || 'N/A')}
+
+Why I Want to Participate:
+${generatedIdea.motivation || 'I am passionate about building innovative solutions and collaborating with talented developers.'}`;
+            } else {
+                textToCopy = String(generatedIdea);
+            }
+            
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                showToast('✅ Content copied to clipboard!', 'success');
+                
+                // Visual feedback
+                const btn = document.getElementById('copyContentBtn');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.style.background = '#27ae60';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '#3498db';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                showToast('Failed to copy - please select and copy manually', 'error');
+            }
+        }
+
+        // Mark hackathon as applied
+        async function markAsApplied() {
+            if (!currentApplyHackathon) return;
+            
+            const btn = document.getElementById('markAppliedBtn');
+            btn.innerHTML = '<div class="spinner"></div> Saving...';
+            btn.disabled = true;
             
             try {
                 const res = await fetch('/api/applications', {
@@ -2155,52 +2629,33 @@
                 const data = await res.json();
                 
                 if (res.ok || data.error === 'Already applied to this hackathon') {
-                    // Step 3: Auto-submit the application
+                    // Submit the application
                     if (res.ok && data.application) {
-                        btn.innerHTML = '<div class="spinner"></div> Submitting...';
                         await fetch(`/api/applications/${data.application.id}/submit`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' }
                         });
                     }
                     
-                    // Step 4: Open the hackathon website automatically
-                    const hackathonUrl = currentApplyHackathon.registration_url || currentApplyHackathon.url;
-                    
-                    showToast('✅ Application tracked! Opening hackathon website...', 'success');
+                    showToast('✅ Marked as applied!', 'success');
                     
                     // Refresh data
                     loadApplications();
                     loadDashboard();
                     
-                    // Close modal and open website
                     closeApplyModal();
-                    
-                    if (hackathonUrl) {
-                        // Small delay so user sees the success message
-                        setTimeout(() => {
-                            window.open(hackathonUrl, '_blank');
-                        }, 500);
-                    }
-                    
-                    // Navigate to applications
                     navigateTo('applications');
                 } else {
-                    showToast(data.error || 'Failed to apply', 'error');
-                    btn.innerHTML = '<i class="fas fa-rocket"></i> Generate & Apply Now';
+                    showToast(data.error || 'Failed to mark as applied', 'error');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Mark as Applied';
                     btn.disabled = false;
                 }
             } catch (err) {
                 showToast('Connection error', 'error');
-                btn.innerHTML = '<i class="fas fa-rocket"></i> Generate & Apply Now';
+                btn.innerHTML = '<i class="fas fa-check"></i> Mark as Applied';
                 btn.disabled = false;
             }
         }
-
-        // Close modal on backdrop click
-        document.getElementById('applyModal').addEventListener('click', (e) => {
-            if (e.target.id === 'applyModal') closeApplyModal();
-        });
 
         // Load Applications
         async function loadApplications() {
@@ -2391,8 +2846,33 @@
                     `;
                 }
                 
+                // Add hackathon link section
+                if (app.hackathon_url) {
+                    content += `
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div class="detail-section">
+                            <div class="detail-label"><i class="fas fa-external-link-alt" style="color: var(--info);"></i> Hackathon Website</div>
+                            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                <a href="${app.hackathon_url}" target="_blank" class="btn btn-success" style="text-decoration: none;">
+                                    <i class="fas fa-external-link-alt"></i> Go to Hackathon Website
+                                </a>
+                                <small style="color: var(--text-muted);">${app.hackathon_url}</small>
+                            </div>
+                        </div>
+                    `;
+                } else if (app.hackathon_exists === false) {
+                    content += `
+                        <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
+                        <div style="padding: 16px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i>
+                            <strong>Hackathon no longer available</strong>
+                            <p style="margin: 8px 0 0 0; font-size: 13px; color: var(--text-muted);">This hackathon may have ended or been removed.</p>
+                        </div>
+                    `;
+                }
+                
                 document.getElementById('hackathonDetailContent').innerHTML = content;
-                document.getElementById('detailApplyBtn').style.display = app.status === 'pending' || app.status === 'auto_generated' ? 'block' : 'none';
+                document.getElementById('detailApplyBtn').style.display = (app.status === 'pending' || app.status === 'auto_generated') && app.hackathon_exists !== false ? 'block' : 'none';
                 document.getElementById('detailApplyBtn').onclick = () => submitApplication(appId);
                 document.getElementById('hackathonDetailModal').classList.add('active');
                 

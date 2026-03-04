@@ -39,7 +39,6 @@ def create_app(config_class=Config):
     # Initialize login manager
     login_manager = LoginManager()
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
     
     @login_manager.user_loader
     def load_user(user_id):
@@ -48,6 +47,10 @@ def create_app(config_class=Config):
             return User.objects(id=user_id).first()
         except:
             return None
+    
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return jsonify({'error': 'Unauthorized', 'message': 'Please login first'}), 401
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')

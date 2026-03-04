@@ -24,7 +24,18 @@ def allowed_file(filename):
 def get_profile():
     profile = UserProfile.objects(user_id=str(current_user.id)).first()
     if not profile:
-        return jsonify({'error': 'Profile not found'}), 404
+        # Return empty profile data instead of 404
+        return jsonify({
+            'bio': '',
+            'skills': [],
+            'frameworks': [],
+            'languages': [],
+            'experience_level': '',
+            'github_url': '',
+            'linkedin_url': '',
+            'portfolio_url': '',
+            'interests': []
+        }), 200
     return jsonify(profile.to_dict()), 200
 
 

@@ -16,8 +16,25 @@ def get_applications():
         query['status'] = status
     
     applications = Application.objects(**query).order_by('-created_at')
+    
+    # Filter out applications with missing hackathons and enrich with hackathon data
+    result = []
+    for app in applications:
+        app_dict = app.to_dict()
+        hackathon = Hackathon.objects(id=app.hackathon_id).first()
+        if hackathon:
+            app_dict['hackathon_url'] = getattr(hackathon, 'registration_url', None) or hackathon.url
+            app_dict['hackathon_exists'] = True
+            result.append(app_dict)
+        else:
+            # Skip orphaned applications or mark them
+            app_dict['hackathon_exists'] = False
+            app_dict['hackathon_url'] = None
+            # Optionally delete orphaned apps
+            # app.delete()
+    
     return jsonify({
-        'applications': [a.to_dict() for a in applications]
+        'applications': result
     }), 200
 
 
@@ -60,7 +77,20 @@ def get_application(app_id):
     application = Application.objects(id=app_id, user_id=str(current_user.id)).first()
     if not application:
         return jsonify({'error': 'Application not found'}), 404
-    return jsonify(application.to_dict()), 200
+    
+    app_dict = application.to_dict()
+    
+    # Add hackathon details
+    hackathon = Hackathon.objects(id=application.hackathon_id).first()
+    if hackathon:
+        app_dict['hackathon_url'] = getattr(hackathon, 'registration_url', None) or hackathon.url
+        app_dict['hackathon_exists'] = True
+        app_dict['hackathon_description'] = hackathon.description
+    else:
+        app_dict['hackathon_url'] = None
+        app_dict['hackathon_exists'] = False
+    
+    return jsonify(app_dict), 200
 
 
 @applications_bp.route('/<app_id>/generate', methods=['POST'])
@@ -93,58 +123,88 @@ def generate_content(app_id):
 @applications_bp.route('/<app_id>/submit', methods=['POST'])
 @login_required
 def submit_application(app_id):
-    """Submit an application - marks it as submitted"""
+    """Submit an application - attempts real auto-apply on hackathon website"""
     from datetime import datetime
     from services.notification_service import NotificationService
+    from models.user_profile import UserProfile
     
     application = Application.objects(id=app_id, user_id=str(current_user.id)).first()
     if not application:
         return jsonify({'error': 'Application not found'}), 404
     
     hackathon = Hackathon.objects(id=application.hackathon_id).first()
+    if not hackathon:
+        # Hackathon was deleted - clean up this orphaned application
+        application.delete()
+        return jsonify({'error': 'Hackathon no longer exists. Application has been removed.'}), 404
     
-    # Generate content if not already generated
+    profile = UserProfile.objects(user_id=str(current_user.id)).first()
+    
+    # Generate AI content if not already generated
     if not application.generated_project_idea:
         try:
             from services.ai_service import AIService
-            from models.user_profile import UserProfile
-            
             ai = AIService()
-            profile = UserProfile.objects(user_id=str(current_user.id)).first()
             
             idea = ai.generate_project_idea(hackathon, profile)
             application.generated_project_idea = str(idea)
             
             motivation = ai.generate_motivation(hackathon, profile)
             application.generated_motivation = motivation
+            application.save()
         except Exception as e:
             print(f"Error generating content: {e}")
     
-    # Mark as submitted
+    # Attempt real auto-apply using browser automation
+    auto_apply_result = None
+    try:
+        from services.auto_apply import AutoApplyBot
+        bot = AutoApplyBot()
+        auto_apply_result = bot.apply(hackathon, profile, application)
+        
+        if auto_apply_result.get('success'):
+            application.status = 'submitted'
+            application.is_auto_applied = True
+            application.submitted_at = datetime.utcnow()
+            application.auto_apply_result = str(auto_apply_result)
+            application.save()
+            
+            # Send success notification
+            try:
+                notification_service = NotificationService()
+                from models.user import User
+                user = User.objects(id=current_user.id).first()
+                
+                if user and user.telegram_chat_id:
+                    notification_service.send_telegram(
+                        user.telegram_chat_id,
+                        "🎉 Auto-Applied Successfully!",
+                        f"Your application to *{hackathon.name}* was automatically submitted!\n\n✅ The bot filled out the form and registered you."
+                    )
+            except:
+                pass
+            
+            return jsonify({
+                'message': 'Successfully auto-applied to hackathon!',
+                'auto_applied': True,
+                'application': application.to_dict(),
+                'result': auto_apply_result
+            }), 200
+    except Exception as e:
+        print(f"Auto-apply failed: {e}")
+        auto_apply_result = {'success': False, 'error': str(e)}
+    
+    # If auto-apply failed or not available, mark as tracked and return URL
     application.status = 'submitted'
-    application.is_auto_applied = True
     application.submitted_at = datetime.utcnow()
-    application.updated_at = datetime.utcnow()
     application.save()
     
-    # Send notification
-    try:
-        notification_service = NotificationService()
-        from models.user import User
-        user = User.objects(id=current_user.id).first()
-        
-        if user and user.telegram_chat_id:
-            notification_service.send_telegram(
-                user.telegram_chat_id,
-                "Application Submitted! 🎉",
-                f"Your application to *{hackathon.name if hackathon else 'Unknown Hackathon'}* has been submitted successfully!\n\nCheck the hackathon website to complete any remaining steps."
-            )
-    except Exception as e:
-        print(f"Error sending notification: {e}")
-    
     return jsonify({
-        'message': 'Application submitted successfully',
-        'application': application.to_dict()
+        'message': 'Application tracked. Auto-apply not available - please complete registration manually.',
+        'auto_applied': False,
+        'manual_url': (getattr(hackathon, 'registration_url', None) or hackathon.url) if hackathon else None,
+        'application': application.to_dict(),
+        'auto_apply_error': auto_apply_result.get('error') if auto_apply_result else 'Auto-apply not available'
     }), 200
 
 

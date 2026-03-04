@@ -9,6 +9,7 @@ class Hackathon(Document):
     name = StringField(required=True)
     description = StringField()
     url = StringField()
+    registration_url = StringField()  # Separate registration URL if different from main URL
     deadline = DateTimeField()
     prize = StringField()
     tags = ListField(StringField())
@@ -25,6 +26,7 @@ class Hackathon(Document):
             'name': self.name,
             'description': self.description,
             'url': self.url,
+            'registration_url': self.registration_url,
             'deadline': self.deadline.isoformat() if self.deadline else None,
             'prize': self.prize,
             'tags': self.tags or [],
