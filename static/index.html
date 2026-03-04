@@ -1087,8 +1087,11 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeApplyModal()">Cancel</button>
+                <button class="btn btn-success" id="directApplyBtn" onclick="directApplyNow()" style="display: none;">
+                    <i class="fas fa-external-link-alt"></i> Apply on Website
+                </button>
                 <button class="btn btn-primary" id="confirmApplyBtn" onclick="confirmApply()">
-                    <i class="fas fa-check"></i> Confirm & Create Application
+                    <i class="fas fa-rocket"></i> Generate & Apply Now
                 </button>
             </div>
         </div>
@@ -1857,6 +1860,15 @@
             document.getElementById('modalHackathonPrize').textContent = hackathon.prize || 'Not specified';
             document.getElementById('modalHackathonTags').innerHTML = (hackathon.tags || []).map(t => `<span class="hackathon-tag">${t}</span>`).join(' ');
             
+            // Show/hide direct apply button based on URL availability
+            const directApplyBtn = document.getElementById('directApplyBtn');
+            const hackathonUrl = hackathon.registration_url || hackathon.url;
+            if (hackathonUrl && directApplyBtn) {
+                directApplyBtn.style.display = 'inline-flex';
+            } else if (directApplyBtn) {
+                directApplyBtn.style.display = 'none';
+            }
+            
             // Show existing application or generate button
             if (existingApp) {
                 let ideaHTML = '';
@@ -2068,13 +2080,67 @@
             }
         }
 
-        // Confirm Apply
+        // Direct Apply - Open hackathon website directly
+        function directApplyNow() {
+            if (!currentApplyHackathon) return;
+            const url = currentApplyHackathon.registration_url || currentApplyHackathon.url;
+            if (url) {
+                window.open(url, '_blank');
+                showToast('Opening hackathon website...', 'info');
+            } else {
+                showToast('No registration URL available', 'error');
+            }
+        }
+
+        // Confirm Apply - Generate AI content, create application, and open website
         async function confirmApply() {
             if (!currentApplyHackathon) return;
             
             const btn = document.getElementById('confirmApplyBtn');
-            btn.innerHTML = '<div class="spinner"></div> Creating...';
-            btn.disabled = true;
+            const previewEl = document.getElementById('modalProjectIdea');
+            
+            // Step 1: Generate AI idea if not already done
+            if (!generatedIdea) {
+                btn.innerHTML = '<div class="spinner"></div> Generating AI idea...';
+                btn.disabled = true;
+                
+                previewEl.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner"></div>
+                        <p style="margin-top: 12px; color: var(--text-muted);">🤖 AI is generating your project idea...</p>
+                    </div>
+                `;
+                
+                try {
+                    const ideaRes = await fetch('/api/ai/generate/idea', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ hackathon_id: currentApplyHackathon.id })
+                    });
+                    
+                    const ideaData = await ideaRes.json();
+                    if (ideaRes.ok && ideaData.idea) {
+                        generatedIdea = ideaData.idea;
+                        // Show generated idea briefly
+                        let ideaHTML = '';
+                        if (typeof ideaData.idea === 'object') {
+                            ideaHTML = `
+                                <div class="ai-preview-title"><i class="fas fa-lightbulb"></i> ${ideaData.idea.project_name || 'Project Idea'}</div>
+                                <p><strong>Problem:</strong> ${ideaData.idea.problem_statement || 'N/A'}</p>
+                                <p><strong>Solution:</strong> ${ideaData.idea.solution || 'N/A'}</p>
+                            `;
+                        } else {
+                            ideaHTML = `<div class="ai-preview-title"><i class="fas fa-lightbulb"></i> Generated Idea</div><p>${ideaData.idea}</p>`;
+                        }
+                        previewEl.innerHTML = ideaHTML;
+                    }
+                } catch (err) {
+                    console.error('Error generating idea:', err);
+                }
+            }
+            
+            // Step 2: Create application
+            btn.innerHTML = '<div class="spinner"></div> Creating application...';
             
             try {
                 const res = await fetch('/api/applications', {
@@ -2087,19 +2153,46 @@
                 });
                 
                 const data = await res.json();
-                if (res.ok) {
-                    showToast('Application created! Go to Applications to view and submit.', 'success');
-                    closeApplyModal();
+                
+                if (res.ok || data.error === 'Already applied to this hackathon') {
+                    // Step 3: Auto-submit the application
+                    if (res.ok && data.application) {
+                        btn.innerHTML = '<div class="spinner"></div> Submitting...';
+                        await fetch(`/api/applications/${data.application.id}/submit`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    }
+                    
+                    // Step 4: Open the hackathon website automatically
+                    const hackathonUrl = currentApplyHackathon.registration_url || currentApplyHackathon.url;
+                    
+                    showToast('✅ Application tracked! Opening hackathon website...', 'success');
+                    
+                    // Refresh data
                     loadApplications();
                     loadDashboard();
+                    
+                    // Close modal and open website
+                    closeApplyModal();
+                    
+                    if (hackathonUrl) {
+                        // Small delay so user sees the success message
+                        setTimeout(() => {
+                            window.open(hackathonUrl, '_blank');
+                        }, 500);
+                    }
+                    
+                    // Navigate to applications
                     navigateTo('applications');
                 } else {
                     showToast(data.error || 'Failed to apply', 'error');
+                    btn.innerHTML = '<i class="fas fa-rocket"></i> Generate & Apply Now';
+                    btn.disabled = false;
                 }
             } catch (err) {
                 showToast('Connection error', 'error');
-            } finally {
-                btn.innerHTML = '<i class="fas fa-check"></i> Confirm & Create Application';
+                btn.innerHTML = '<i class="fas fa-rocket"></i> Generate & Apply Now';
                 btn.disabled = false;
             }
         }

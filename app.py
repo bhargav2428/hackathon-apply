@@ -17,6 +17,7 @@ from routes.ai_services import ai_services_bp
 from routes.notifications import notifications_bp
 from routes.dashboard import dashboard_bp
 from routes.auto_apply import auto_apply_bp
+from routes.credentials import credentials_bp
 
 # Load environment variables
 load_dotenv()
@@ -57,6 +58,7 @@ def create_app(config_class=Config):
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
     app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
     app.register_blueprint(auto_apply_bp, url_prefix='/api/auto-apply')
+    app.register_blueprint(credentials_bp, url_prefix='/api/credentials')
     
     # Health check endpoint
     @app.route('/api/health')
